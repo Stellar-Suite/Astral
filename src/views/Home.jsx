@@ -1,6 +1,8 @@
 import { Wrapper } from '../components/Wrapper';
 import React from 'react'
 import { Dialog } from '../components/Dialog';
+import { getCurrentUser } from '../utils/login';
+import { redirect, useNavigate } from 'react-router-dom';
 
  /*<div className="p-32">
                 <h1 className="text-4xl mb-5">Redirecting</h1>    
@@ -9,6 +11,16 @@ import { Dialog } from '../components/Dialog';
 
 const Home = () => {
   
+  const navigate = useNavigate();
+  
+  React.useEffect(() => {
+    if(!getCurrentUser()){
+      console.log("redirecting...")
+      navigate("/login?ref=redirect");
+    }else{
+      navigate("/launcher?ref=redirect");
+    }
+  });
     
   return (
     <React.Fragment>

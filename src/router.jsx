@@ -8,6 +8,7 @@ import {
 import React from "react";
 import Home from "./views/Home";
 import NotFound from "./views/NotFound";
+import LoginPage from "./views/Login";
 
 const router = createBrowserRouter([
 {
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
         },
         {
             path: "/login",
-            element: null
+            element: <LoginPage />
         }
     ],
     errorElement: <NotFound></NotFound>
