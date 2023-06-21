@@ -15,4 +15,4 @@ const NotFound = () => {
 </React.Fragment>
 };
 
-export default NotFound
+export default NotFound;

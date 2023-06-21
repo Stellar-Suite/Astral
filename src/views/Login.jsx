@@ -79,4 +79,4 @@ const LoginPage = () => {
 </React.Fragment>
 };
 
-export default LoginPage
+export default LoginPage;
