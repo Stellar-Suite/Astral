@@ -4,7 +4,7 @@ import React from 'react'
 
 const LaunchApp = () => {
   return <React.Fragment>
-  <Wrapper>
+    <Wrapper>
         
     </Wrapper>
 </React.Fragment>
