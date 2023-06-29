@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 
 import {getCurrentUser, getJwt, setJwt} from "./login";
+import { recreateSocket } from "./socket";
 
 export function getDefaultUrl(){
     return location.origin;
@@ -56,6 +57,7 @@ export async function tryLogin(password){
         let data = await resp.json();
         if(!data.ok) return false;
         setJwt(data.jwt);
+        recreateSocket();
         return true;
     }catch(ex){
         console.log("backend check failed " + ex);

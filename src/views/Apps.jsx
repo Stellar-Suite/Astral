@@ -20,7 +20,7 @@ const Apps = () => {
     function refreshAppSpecs(){
         fetchApi("/api/v1/apps").then(async resp => {
             let json = await resp.json();
-            let testInflation = [];
+            /*let testInflation = [];
             // test code, directly return the json when we are ready to ship with real data
             // this duplicates the first app 69 times
             for(let i = 0; i < 69; i++){
@@ -29,8 +29,8 @@ const Apps = () => {
                 if(i == 0){
                     testInflation[i].id = json.data[0].id; // real id
                 }
-            }
-            setAppsSpecs(testInflation);  
+            }*/
+            setAppsSpecs(json.data);  
         });
     }
 
@@ -66,7 +66,10 @@ const Apps = () => {
                 appSpecs.map((appSpec) => {
                     let fullPosterUrl = new URL(appSpec.poster, getApiUrl()).href; // TODO: check if we are using react router to launch
                     return <a className="cursor-pointer" href={"/app/" + appSpec["id"]} key={appSpec["id"]} >
-                        <img src={fullPosterUrl} onClick={() => launchApp(appSpec["id"])} className="w-auto h-auto rounded-lg shadow"></img>
+                        <img src={fullPosterUrl} onClick={(ev) => {
+                            ev.preventDefault();
+                            launchApp(appSpec["id"]);
+                        }} className="w-auto h-auto rounded-lg shadow"></img>
                     </a>
                 })
             }

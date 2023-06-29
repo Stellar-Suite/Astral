@@ -4,6 +4,8 @@ import React from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router';
 import { adjustedBackground } from '../utils/classes';
 import { fetchApi, getApiUrl } from '../utils/api';
+import { Term } from '../components/Term';
+import _ from "lodash";
 
 function useQuery() {
     const search = (useLocation()).search;
@@ -16,13 +18,30 @@ const Player = () => {
     let navigate = useNavigate();
 
     let [session, setSession] = React.useState(null);
+    let [sid, setSid] = React.useState(query.get("sid"));
 
     function updateSessionInfo(){
         let sid = query.get("sid");
         fetchApi("/api/v1/session/" + sid).then(async resp => {
             if(resp.ok){
                 let json = await resp.json();
-                setSession(json["data"]);
+                let changed = session == null;
+                if(!changed){
+                    for(let pair of Object.entries(json["data"])){
+                        if(!_.isEqual(session[pair[0]], pair[1])){
+                            console.log(pair[0], " prop changed ");
+                            changed = true;
+                        }
+                    }
+                }
+                if(changed){
+                    setSession((oldSession) => {
+                        return {
+                            ...oldSession,
+                            ...json["data"]
+                        }
+                    });
+                }
             }else if(resp.status == 404){
                 if(!session){
                     alert("Session not found. ");
@@ -66,10 +85,10 @@ const Player = () => {
                         <div className = "loading h-full w-full px-12 pt-12 pb-9 lg:px-24 lg:pt-24 lg:pb-18">
                             <div className="grid grid-cols-4 gap-8 h-5/6 p-8" aria-busy="true" aria-describedby="loader">
                                 <div className="col-span-4 lg:col-span-2 bg-background-lighter">
-
+                                    <Term channel={sid + ":stdout"}></Term>
                                 </div>
                                 <div className="hidden lg:block lg:col-span-2 bg-background-lighter">
-                                    
+                                    <Term channel={sid + ":stderr"}></Term>
                                 </div>
                             </div>
                             <div className="h-1/6 p-8" id="loader" aria-label="Starting application...">
