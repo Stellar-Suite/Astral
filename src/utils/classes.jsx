@@ -1,0 +1,1 @@
+export let adjustedBackground = " bg-origin-padding bg-center bg-cover bg-repeat-none ";

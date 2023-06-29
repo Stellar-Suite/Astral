@@ -27,7 +27,7 @@ const Apps = () => {
                 testInflation.push(Object.assign({}, json.data[0]));
                 testInflation[i].id = "test" + i;
                 if(i == 0){
-                    testInflation[i].id = "tetris_worlds";
+                    testInflation[i].id = json.data[0].id; // real id
                 }
             }
             setAppsSpecs(testInflation);  
@@ -53,7 +53,7 @@ const Apps = () => {
                 <div className="grow">
 
                 </div>
-                <span className = "inline-block my-auto pr-8">
+                <span className = "inline-block my-auto pr-8" title = "If you don't like your username, ask an admin of your StarGate instance to change it. ">
                     {
                         user ? user["name"] : "Not logged in?"
                     }
@@ -61,13 +61,13 @@ const Apps = () => {
             </div>
             <br />
             {/* TODO make components */}
-            <div className="grid grid-cols-8 gap-8 w-11/12 max-11/12 mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-9 gap-8 w-11/12 max-11/12 mx-auto">
             {
                 appSpecs.map((appSpec) => {
-                    let fullPosterUrl = new URL(appSpec.poster, getApiUrl()).href;
-                    return <div className="cursor-pointer">
+                    let fullPosterUrl = new URL(appSpec.poster, getApiUrl()).href; // TODO: check if we are using react router to launch
+                    return <a className="cursor-pointer" href={"/app/" + appSpec["id"]} key={appSpec["id"]} >
                         <img src={fullPosterUrl} onClick={() => launchApp(appSpec["id"])} className="w-auto h-auto rounded-lg shadow"></img>
-                    </div>
+                    </a>
                 })
             }
             </div>

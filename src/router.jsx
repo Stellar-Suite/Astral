@@ -10,6 +10,8 @@ import Home from "./views/Home";
 import NotFound from "./views/NotFound";
 import LoginPage from "./views/Login";
 import Apps from "./views/Apps";
+import AppLaunch, { appLoader } from "./views/AppLaunch";
+import Player from "./views/Player";
 
 const router = createBrowserRouter([
 {
@@ -27,6 +29,15 @@ const router = createBrowserRouter([
         {
             path: "/launcher",
             element: <Apps />
+        },
+        {
+            path: "/app/:id",
+            element: <AppLaunch />,
+            loader: appLoader
+        },
+        {
+            path: "/player",
+            element: <Player />
         }
     ],
     errorElement: <NotFound></NotFound>

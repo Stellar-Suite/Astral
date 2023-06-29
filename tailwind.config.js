@@ -8,6 +8,15 @@ module.exports = {
 				'background-lighter': "#1b2838",
 				'secondary': "#2a475e",
 				"primary": "#66c0f4"
+			},
+			keyframes: {
+				loading: {
+					'0%': { left: "-50%" },
+					'100%': { left: "100%" },
+				}
+			},
+			animation: {
+				loading: 'loading 1s ease-in-out infinite',
 			}
 		},
 		fontFamily: {

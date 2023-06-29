@@ -31,6 +31,8 @@ export function fetchApi(url, options = {}){
     return fetch(getApiUrl() + url, options);
 }
 
+window["fetchApi"] = fetchApi; // for debug!
+
 export async function checkHasBackend(){
     try{
         let resp = await fetchApi("/api/v1/check"); // no auth endpoint
