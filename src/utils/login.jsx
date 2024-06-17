@@ -10,6 +10,11 @@ export const setJwt = (jwt) => {
     Cookies.set("jwt", jwt);
 };
 
+export const logout = () => {
+    Cookies.remove("jwt");
+    location.reload();
+}
+
 export const getCurrentUser = () => {
     const jwt = getJwt();
     if (!jwt) {

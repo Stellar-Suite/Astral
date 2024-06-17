@@ -88,7 +88,7 @@ const Player = () => {
                                     <Term channel={sid + ":stdout"}></Term>
                                 </div>
                                 <div className="hidden lg:block lg:col-span-2 bg-background-lighter">
-                                    <Term channel={sid + ":stderr"}></Term>
+                                    <Term channel={sid + ":streamer_stdout"}></Term>
                                 </div>
                             </div>
                             <div className="h-1/6 p-8" id="loader" aria-label="Starting application...">

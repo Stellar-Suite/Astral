@@ -1,11 +1,16 @@
 import {io} from "socket.io-client";
 import { getApiUrl } from "./api";
-import { getJwt } from "./login";
+import { getJwt, logout } from "./login";
 
 export let socket;
 
 export function recreateSocket(){
     socket = io(getApiUrl());
+    socket.on("invalidToken", (shouldLogout) => {
+        if(shouldLogout){
+            logout();
+        }
+    });
     socket.on("connect", () => {
         console.log("socket connected");
         if(getJwt()){
