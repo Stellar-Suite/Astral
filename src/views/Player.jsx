@@ -7,10 +7,36 @@ import { fetchApi, getApiUrl } from "../utils/api";
 import { Term } from "../components/Term";
 import _ from "lodash";
 
+import { SESSION_STATE } from "../shared/protocol";
+
 function useQuery() {
   const search = useLocation().search;
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }
+
+// stole this from my local instance, and modified a bit
+const mockSession = {
+    "admin": {
+        "id": "test",
+        "name": "Nameless User"
+    },
+    "appSpecs": {
+        "displayName": "Supertuxkart",
+        "binary": "supertuxkart",
+        "id": "stk",
+        "poster": "/assets/stk.png",
+        "background": "/assets/stk_bg.jpg",
+        "description": "Karts. Nitro. Action! SuperTuxKart is a 3D open-source arcade racer with a variety of characters, tracks, and modes to play. Our aim is to create a game that is more fun than realistic, and provide an enjoyable experience for all ages.\n\nIn Story mode, you must face the evil Nolok, and defeat him in order to make the Mascot Kingdom safe once again! You can race by yourself against the computer, compete in several Grand Prix cups, or try to beat your fastest time in Time Trial mode. You can also race, battle or play soccer with up to eight friends on a single computer, play on a local network or play online with other players all over the world.\n",
+        "rewriteHome": true,
+        "rewriteDataDirs": true,
+        "args": []
+    },
+    "sid": "12be36d4-0610-424d-a388-0804b253749d",
+    "ready": true,
+    "state": 2, // test ready state
+    "state_enum": "Ready",
+    "acls": {}
+};
 
 const Player = () => {
   let query = useQuery();
@@ -18,9 +44,13 @@ const Player = () => {
 
   let [session, setSession] = React.useState(null);
   let [sid, setSid] = React.useState(query.get("sid"));
+  let [test, setTest] = React.useState(query.get("test"));
 
   function updateSessionInfo() {
     let sid = query.get("sid");
+    if(query.get("test")){
+      return; // don't update in test mode
+    }
     fetchApi("/api/v1/session/" + sid).then(async (resp) => {
       if (resp.ok) {
         let json = await resp.json();
@@ -53,12 +83,23 @@ const Player = () => {
   }
 
   function getReadyText(session) {
+    if(session.state == SESSION_STATE.Ready){
+      return "Loading streaming ui...";
+    }else if(session.state == SESSION_STATE.Disconnecting){
+      return "Disconnecting...";
+    }else if(session.state == SESSION_STATE.Handshaking){
+      return "Waiting for streamer daemon handshake...";
+    }else if(session.state == SESSION_STATE.Initalizing){
+      return "Initializing application and streamer daemon...";
+    }
+    // prob not getting used
     return "Establishing realtime connection...";
   }
 
   React.useEffect(() => {
     let sid = query.get("sid");
-    if (!sid) {
+    let test = query.get("test");
+    if (!sid && !test) {
       navigate("/");
     }
     updateSessionInfo();
@@ -67,6 +108,8 @@ const Player = () => {
       clearInterval(interval);
     };
   }, []);
+
+  session = test ? mockSession : session;
 
   if (session) {
     let backgroundUrl = new URL(session.appSpecs.background, getApiUrl()).href;
@@ -132,6 +175,8 @@ const Player = () => {
         </Wrapper>
       </React.Fragment>
     );
+  } else if (test) {
+
   }
 
   return (
