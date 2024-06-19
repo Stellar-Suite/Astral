@@ -1,1 +1,0 @@
-npx shadcn-ui@latest --help
