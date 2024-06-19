@@ -175,7 +175,7 @@ const Player = () => {
                       <div className="col-span-10 bg-background-lighter"></div>
                       <div className="col-span-2 bg-background-lighter">
                         <Tabs defaultValue="session" className="w-full">
-                          <TabsList className = "">
+                          <TabsList className = "w-full">
                             <TabsTrigger value="session">Session</TabsTrigger>
                             <TabsTrigger value="social">Social</TabsTrigger>
                           </TabsList>
