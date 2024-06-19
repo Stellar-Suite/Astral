@@ -9,8 +9,10 @@
 
   @layer base {
     :root {
-      --background: 0 0% 100%;
-      --foreground: 224 71.4% 4.1%;
+      /* vscode preview of colors is wrong? */
+      --background: #171a21;
+      --foreground: #c7d5e0;
+      --background-lighter: #1b2838;
 
       --card: 0 0% 100%;
       --card-foreground: 224 71.4% 4.1%;
