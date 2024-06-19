@@ -172,11 +172,11 @@ const Player = () => {
                       <div className="col-span-2 bg-background-lighter">
                         <Tabs defaultValue="account" className="w-[400px]">
                           <TabsList>
-                            <TabsTrigger value="account">Account</TabsTrigger>
-                            <TabsTrigger value="password">Password</TabsTrigger>
+                            <TabsTrigger value="session">Session</TabsTrigger>
+                            <TabsTrigger value="social">Social</TabsTrigger>
                           </TabsList>
-                          <TabsContent value="account">Make changes to your account here.</TabsContent>
-                          <TabsContent value="password">Change your password here.</TabsContent>
+                          <TabsContent value="session">Sessions changes here.</TabsContent>
+                          <TabsContent value="social">Social</TabsContent>
                         </Tabs>
                       </div>
                     </div>
