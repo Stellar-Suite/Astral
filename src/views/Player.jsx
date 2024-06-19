@@ -8,7 +8,7 @@ import { Term } from "../components/Term";
 import _ from "lodash";
 
 // ui comps
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../@/components/ui/tabs"
 
 
 import { SESSION_STATE } from "../shared/protocol";
