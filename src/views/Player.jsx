@@ -1,14 +1,13 @@
-import { Dialog } from "../components/Dialog";
-import { Wrapper } from "../components/Wrapper";
-import React from "react";
-import { useNavigate, useParams, useLocation } from "react-router";
-import { adjustedBackground } from "../utils/classes";
-import { fetchApi, getApiUrl } from "../utils/api";
-import { Term } from "../components/Term";
 import _ from "lodash";
+import React from "react";
+import { useLocation, useNavigate } from "react-router";
+import { Term } from "../components/Term";
+import { Wrapper } from "../components/Wrapper";
+import { fetchApi, getApiUrl } from "../utils/api";
+import { adjustedBackground } from "../utils/classes";
 
 // ui comps
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../@/components/ui/tabs";
 
 
 import { SESSION_STATE } from "../shared/protocol";
@@ -41,7 +40,7 @@ const mockSession = {
     "state_enum": "Ready",
     "acls": {}
 };
-
+/* eslint-disable react/prop-types */
 const Player = () => {
   let query = useQuery();
   let navigate = useNavigate();
