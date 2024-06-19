@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../@/components/ui/tab
 
 
 import { SESSION_STATE } from "../shared/protocol";
+import { Button } from "../@/components/ui/button";
 
 function useQuery() {
   const search = useLocation().search;
@@ -85,6 +86,10 @@ const Player = () => {
     });
   }
 
+  function endSession(){
+    // todo
+  }
+
   function getReadyText(session) {
     if(session.state == SESSION_STATE.Ready){
       return "Loading streaming ui...";
@@ -133,7 +138,7 @@ const Player = () => {
             {[
               !session.ready && (
                 <>
-                  <div className="loading h-full w-full px-12 pt-12 pb-9 lg:px-24 lg:pt-24 lg:pb-18">
+                  <div className="loading h-full w-full px-12 pt-12 pb-9 lg:px-24 lg:pt-24 lg:pb-18" key="loading">
                     <div
                       className="grid grid-cols-4 gap-8 h-5/6 p-8"
                       aria-busy="true"
@@ -161,7 +166,7 @@ const Player = () => {
               ),
               session.ready && (
                 <>
-                  <div className="h-full w-full m-0">
+                  <div className="h-full w-full m-0" key = "player">
                     <div
                       className="grid grid-cols-12 gap-8 h-full p-8"
                       aria-busy="true"
@@ -170,12 +175,14 @@ const Player = () => {
                       <div className="col-span-10 bg-background-lighter"></div>
                       <div className="col-span-2 bg-background-lighter">
                         <Tabs defaultValue="session" className="w-full">
-                          <TabsList className = "w-full">
+                          <TabsList className = "">
                             <TabsTrigger value="session">Session</TabsTrigger>
                             <TabsTrigger value="social">Social</TabsTrigger>
                           </TabsList>
-                          <TabsContent value="session" className="p-4">Sessions changes here.</TabsContent>
-                          <TabsContent value="social"  className="p-4">Social</TabsContent>
+                          <TabsContent value="session" className="p-4">
+                            <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
+                          </TabsContent>
+                          <TabsContent value="social"  className="p-4">Social Features go here</TabsContent>
                         </Tabs>
                       </div>
                     </div>
