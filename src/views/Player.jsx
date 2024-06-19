@@ -7,6 +7,10 @@ import { fetchApi, getApiUrl } from "../utils/api";
 import { Term } from "../components/Term";
 import _ from "lodash";
 
+// ui comps
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+
 import { SESSION_STATE } from "../shared/protocol";
 
 function useQuery() {
@@ -165,7 +169,16 @@ const Player = () => {
                       aria-describedby="loader"
                     >
                       <div className="col-span-10 bg-background-lighter"></div>
-                      <div className="col-span-2 bg-background-lighter"></div>
+                      <div className="col-span-2 bg-background-lighter">
+                        <Tabs defaultValue="account" className="w-[400px]">
+                          <TabsList>
+                            <TabsTrigger value="account">Account</TabsTrigger>
+                            <TabsTrigger value="password">Password</TabsTrigger>
+                          </TabsList>
+                          <TabsContent value="account">Make changes to your account here.</TabsContent>
+                          <TabsContent value="password">Change your password here.</TabsContent>
+                        </Tabs>
+                      </div>
                     </div>
                   </div>
                 </>
