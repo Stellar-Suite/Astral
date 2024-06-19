@@ -6,7 +6,7 @@ import {FitAddon} from "@xterm/addon-fit"
 import socket from "../utils/socket";
 import {subscribe, unsubscribe} from "../utils/socket";
 
-import "xterm/css/xterm.css";
+import "@xterm/xterm/css/xterm.css";
 
 export function Term(props){
     let domElementRef = React.useRef(null);
