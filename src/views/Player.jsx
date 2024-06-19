@@ -172,9 +172,9 @@ const Player = () => {
                       aria-busy="true"
                       aria-describedby="loader"
                     >
-                      <div className="col-span-10 bg-background-lighter"></div>
-                      <div className="col-span-2 bg-background-lighter">
-                        <Tabs defaultValue="session" className="w-full">
+                      <div className="col-span-9 bg-background-lighter"></div>
+                      <div className="col-span-3 bg-background-lighter">
+                        <Tabs defaultValue="session" className="w-full p-4">
                           <TabsList className = "w-full">
                             <TabsTrigger value="session">Session</TabsTrigger>
                             <TabsTrigger value="social">Social</TabsTrigger>
