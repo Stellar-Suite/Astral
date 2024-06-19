@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Terminal } from 'xterm';
-import {FitAddon} from "xterm-addon-fit"
+import { Terminal } from '@xterm/xterm';
+import {FitAddon} from "@xterm/addon-fit"
 
 import socket from "../utils/socket";
 import {subscribe, unsubscribe} from "../utils/socket";
