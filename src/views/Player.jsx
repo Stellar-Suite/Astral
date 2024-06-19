@@ -175,8 +175,8 @@ const Player = () => {
                             <TabsTrigger value="session">Session</TabsTrigger>
                             <TabsTrigger value="social">Social</TabsTrigger>
                           </TabsList>
-                          <TabsContent value="session">Sessions changes here.</TabsContent>
-                          <TabsContent value="social">Social</TabsContent>
+                          <TabsContent value="session" className="p-4">Sessions changes here.</TabsContent>
+                          <TabsContent value="social"  className="p-4">Social</TabsContent>
                         </Tabs>
                       </div>
                     </div>
