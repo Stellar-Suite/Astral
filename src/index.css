@@ -19,12 +19,12 @@
 
       --popover: 0 0% 100%;
       --popover-foreground: 224 71.4% 4.1%;
+      /* todo: adjust these to be more optimal */
+      --primary: #66c0f4;
+      --primary-foreground: #66c0f4;
 
-      --primary: 220.9 39.3% 11%;
-      --primary-foreground: 210 20% 98%;
-
-      --secondary: 220 14.3% 95.9%;
-      --secondary-foreground: 220.9 39.3% 11%;
+      --secondary: #2a475e;
+      --secondary-foreground: #2a475e;
 
       --muted: 220 14.3% 95.9%;
       --muted-foreground: 220 8.9% 46.1%;
