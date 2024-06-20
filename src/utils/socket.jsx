@@ -39,4 +39,28 @@ export function unsubscribe(channel, cb){
     socket.off(channel, cb);
 }
 
+class BulkSocketManager {
+    sockets = new Map();
+    constructor(){
+
+    }
+
+    getSocket(name){
+        if(!this.sockets.has(name)){
+            this.sockets.set(name, io(getApiUrl()));
+            this.sockets.get(name).on("connect", () => {
+                console.log("new socket connected", name);
+                if(getJwt()){
+                    this.sockets.get(name).emit("jwt", getJwt());
+                }
+            });
+        }
+        return this.sockets.get(name);
+    }
+}
+
+// screw react context for now, why context when you can global variable
+
+export const bulkSocketManager = new BulkSocketManager();
+
 export default socket;
