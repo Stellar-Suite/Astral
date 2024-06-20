@@ -13,9 +13,11 @@ export function RemoteMedia(props){
         socket.emit("send_to_session", sid, data);
     }
 
-    React.useEffect(() => {
+    console.log("Rendering remote media", type, sid);
 
+    React.useEffect(() => {
         function doInit(){
+            console.log("provisioning rtc");
             send_to_daemon({
                 rtc_provision_start: Date.now()
             });
@@ -35,23 +37,42 @@ export function RemoteMedia(props){
         };
 
         const peerHandler = (peerId, data) => {
+            console.log("peer message",peerId, data);
             if(data.provision_ok) {
+                console.log("Provision ok making rtcpeerconnection");
                 peer_connection = new RTCPeerConnection({
                     iceServers: [
                         {
                             urls: "stun:stun.l.google.com:19302"
                         }
                     ],
+                    iceTransportPolicy: "all",
                     bundlePolicy: "max-bundle"
                 });
 
                 peer_connection.addEventListener('icecandidate', (event) => {
+                    console.log("icecandidate", event);
                     send_to_daemon({
                         canidate: event.candidate.candidate,
                         sdpMLineIndex: event.candidate.sdpMLineIndex,
                         ...event.candidate
                     });
+                   
                 });
+
+                peer_connection.addEventListener('iceconnectionstatechange', (event) => {
+                    console.log("iceconnectionstatechange", event);
+                });
+
+                peer_connection.addEventListener('connectionstatechange', (event) => {
+                    console.log("connectionstatechange", event);
+                });
+
+                // TODO: client make offer? not surei f useful?
+                send_to_daemon({
+                    offer_request_source: "client"
+                });
+
             }else if(data.canidate){
                 console.log(data.canidate);
                 peer_connection.addIceCandidate(new RTCIceCandidate(data.canidate))
@@ -67,10 +88,11 @@ export function RemoteMedia(props){
         if(socket.authed){
             doInit();
         }
-
+        console.log("Adding event listeners");
         socket.on("authed", initHandler);
         socket.on("peer_message", peerHandler);
         return () => {
+            console.log("Removing event listeners");
             socket.off("authed", initHandler);
             socket.off("peer_message", peerHandler);
         }
