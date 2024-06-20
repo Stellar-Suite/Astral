@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../@/components/ui/tab
 
 import { SESSION_STATE } from "../shared/protocol";
 import { Button } from "../@/components/ui/button";
+import RemoteMedia from "../components/RemoteMedia";
 
 function useQuery() {
   const search = useLocation().search;
@@ -172,7 +173,9 @@ const Player = () => {
                       aria-busy="true"
                       aria-describedby="loader"
                     >
-                      <div className="col-span-9 bg-background-lighter"></div>
+                      <div className="col-span-9 bg-background-lighter">
+                        <RemoteMedia sid = {session.sid} />
+                      </div>
                       <div className="col-span-3 bg-background-lighter">
                         <Tabs defaultValue="session" className="w-full p-4">
                           <TabsList className = "w-full">

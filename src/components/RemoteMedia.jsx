@@ -21,50 +21,68 @@ export function RemoteMedia(props){
             });
         }
 
-        let peer_connection = new RTCPeerConnection({
-            iceServers: [
-                {
-                    urls: "stun:stun.l.google.com:19302"
-                }
-            ],
-            bundlePolicy: "max-bundle"
-        });
+        let peer_connection;
 
-        peer_connection.addEventListener('icecandidate', (event) => {
-            send_to_daemon({
-                canidate: event.candidate.candidate,
-                sdpMLineIndex: event.candidate.sdpMLineIndex,
-                ...event.candidate
-            })
-        });
-
-        
-
-        let initHandler = (success) => {
+        const initHandler = (success) => {
             if(success){
                 socket.emit("join_session", sid);
                 socket.authed = true;
                 doInit();
             }
-        }
+            socket.on("error", (message) => {
+                console.warn("Server sent an error: " + message);
+            });
+        };
+
+        const peerHandler = (peerId, data) => {
+            if(data.provision_ok) {
+                peer_connection = new RTCPeerConnection({
+                    iceServers: [
+                        {
+                            urls: "stun:stun.l.google.com:19302"
+                        }
+                    ],
+                    bundlePolicy: "max-bundle"
+                });
+
+                peer_connection.addEventListener('icecandidate', (event) => {
+                    send_to_daemon({
+                        canidate: event.candidate.candidate,
+                        sdpMLineIndex: event.candidate.sdpMLineIndex,
+                        ...event.candidate
+                    });
+                });
+            }else if(data.canidate){
+                console.log(data.canidate);
+                peer_connection.addIceCandidate(new RTCIceCandidate(data.canidate))
+            }else if(data.sdp){
+                if(data.type == "offer"){
+                    peer_connection.setRemoteDescription(data);
+                }else if(data.type == "answer"){
+                    peer_connection.setRemoteDescription(data);
+                }
+            }
+        };
 
         if(socket.authed){
             doInit();
         }
 
         socket.on("authed", initHandler);
+        socket.on("peer_message", peerHandler);
         return () => {
             socket.off("authed", initHandler);
+            socket.off("peer_message", peerHandler);
         }
     }, []);
     if(type == "audio"){
-        return <>
+        return <div className = "w-full h-full m-0 p-0 bg-green-800">
             <audio className="remote-audio w-full h-full" ref={domElementRef}></audio>
-        </>
+        </div>;
     }else{
-        return <>
+        return <div className = "w-full h-full m-0 p-0 bg-green-800">
             <video className="remote-video w-full h-full" ref={domElementRef}></video>
-        </>
+        </div>;
     }
 }
 
