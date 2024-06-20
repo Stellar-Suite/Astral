@@ -23,6 +23,7 @@ export function RemoteMedia(props){
             });
         }
 
+        /** @type {RTCPeerConnection} */
         let peer_connection;
 
         const initHandler = (success) => {
@@ -36,7 +37,7 @@ export function RemoteMedia(props){
             });
         };
 
-        const peerHandler = (peerId, data) => {
+        const peerHandler = async (peerId, data) => {
             console.log("peer message",peerId, data);
             if(data.provision_ok) {
                 console.log("Provision ok making rtcpeerconnection");
@@ -47,14 +48,11 @@ export function RemoteMedia(props){
                         }
                     ],
                     iceTransportPolicy: "all",
-                    bundlePolicy: "max-bundle"
                 });
 
                 peer_connection.addEventListener('icecandidate', (event) => {
                     console.log("icecandidate", event);
                     send_to_daemon({
-                        canidate: event.candidate.candidate,
-                        sdpMLineIndex: event.candidate.sdpMLineIndex,
                         ...event.candidate
                     });
                    
@@ -77,10 +75,20 @@ export function RemoteMedia(props){
                 console.log(data.canidate);
                 peer_connection.addIceCandidate(new RTCIceCandidate(data.canidate))
             }else if(data.sdp){
-                if(data.type == "offer"){
-                    peer_connection.setRemoteDescription(data);
-                }else if(data.type == "answer"){
-                    peer_connection.setRemoteDescription(data);
+                try{
+                    if(data.type == "offer"){
+                        await peer_connection.setRemoteDescription(data);
+                        console.log("Creating answer");
+                        let answer = await peer_connection.createAnswer()
+                        console.log("Setting local desc",answer);
+                        await peer_connection.setLocalDescription(answer);
+                        console.log("Sending answer",answer);
+                        send_to_daemon(answer); // already has sdp + type field
+                    }else if(data.type == "answer"){
+                        peer_connection.setRemoteDescription(data);
+                    }
+                }catch(ex){
+                    console.warn("SDP handling failed", ex);
                 }
             }
         };
