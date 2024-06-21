@@ -15,6 +15,10 @@ export function RemoteMedia(props){
 
     console.log("Rendering remote media", type, sid);
 
+    function forcePlay(){
+        domElementRef.current.play();
+    }
+
     React.useEffect(() => {
         function doInit(){
             console.log("provisioning rtc");
@@ -66,14 +70,30 @@ export function RemoteMedia(props){
                     console.log("connectionstatechange", event);
                 });
 
+                peer_connection.addEventListener('datachannel', (event) => {
+                    console.log("datachannel", event);
+                });
+
+                peer_connection.addEventListener('track', (event) => {
+                    console.log("track", event);
+                    // TODO: filter by audio/video
+                    domElementRef.current.srcObject = event.streams[0];
+                    try{
+                        domElementRef.current.play();
+                    }catch(ex){
+                        console.warn("Error playing stream", ex);
+                        // prompt for manual click
+                    }
+                });
+
                 // TODO: client make offer? not surei f useful?
                 send_to_daemon({
                     offer_request_source: "client"
                 });
 
-            }else if(data.canidate){
-                console.log(data.canidate);
-                peer_connection.addIceCandidate(new RTCIceCandidate(data.canidate))
+            }else if(data.candidate){
+                console.log(data.candidate);
+                peer_connection.addIceCandidate(new RTCIceCandidate(data));
             }else if(data.sdp){
                 try{
                     if(data.type == "offer"){
@@ -106,12 +126,12 @@ export function RemoteMedia(props){
         }
     }, []);
     if(type == "audio"){
-        return <div className = "w-full h-full m-0 p-0 bg-green-800">
+        return <div className = "w-full h-full m-0 p-0 bg-green-800" onClick = {forcePlay}>
             <audio className="remote-audio w-full h-full" ref={domElementRef}></audio>
         </div>;
     }else{
-        return <div className = "w-full h-full m-0 p-0 bg-green-800">
-            <video className="remote-video w-full h-full" ref={domElementRef}></video>
+        return <div className = "w-full h-full m-0 p-0 bg-green-800" onClick = {forcePlay}>
+            <video className="remote-video w-full h-full" ref={domElementRef} controls></video>
         </div>;
     }
 }
