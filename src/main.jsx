@@ -4,6 +4,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 // font
 import "@fontsource/inter";
+// patches
+import adapter from 'webrtc-adapter';
+// App
 import App from './App';
 
 import router from "./router";

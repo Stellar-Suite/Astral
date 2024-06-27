@@ -1,6 +1,7 @@
 import React from 'react';
 import socket from "../utils/socket";
 import {bulkSocketManager} from "../utils/socket";
+import adapter from 'webrtc-adapter';
 
 export function RemoteMedia(props){
     let domElementRef = React.useRef(null);
@@ -17,6 +18,12 @@ export function RemoteMedia(props){
 
     function forcePlay(){
         domElementRef.current.play();
+    }
+
+    function startManualOffer(){
+        send_to_daemon({
+            offer_request_source: "client"
+        });
     }
 
     React.useEffect(() => {
@@ -86,10 +93,11 @@ export function RemoteMedia(props){
                     }
                 });
 
-                // TODO: client make offer? not surei f useful?
-                send_to_daemon({
-                    offer_request_source: "client"
-                });
+                // TODO: client make offer? not sure if useful?
+                startManualOffer();
+
+                // starts stuff
+                
 
             }else if(data.candidate){
                 console.log(data.candidate);

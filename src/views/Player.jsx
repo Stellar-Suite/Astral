@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../@/components/ui/tab
 import { SESSION_STATE } from "../shared/protocol";
 import { Button } from "../@/components/ui/button";
 import RemoteMedia from "../components/RemoteMedia";
+import socket from "../utils/socket";
 
 function useQuery() {
   const search = useLocation().search;
@@ -118,6 +119,26 @@ const Player = () => {
     };
   }, []);
 
+  React.useEffect(() => {
+    let peerMessageHandler = (source_socket_id, data) => {
+      console.log("peer message", data);
+      if(data.debug){
+        alert(data.debug);
+      }
+    };
+    socket.on("peer_message", peerMessageHandler);
+    return () => {
+      socket.off("peer_message", peerMessageHandler);
+    };
+  }, []);
+
+  function debugSession(){
+    console.log("Sent debug request");
+    socket.emit("send_to_session", session.sid, {
+      debug_info_request: Date.now()
+    });
+  }
+
   session = test ? mockSession : session;
 
   if (session) {
@@ -183,6 +204,7 @@ const Player = () => {
                             <TabsTrigger value="social">Social</TabsTrigger>
                           </TabsList>
                           <TabsContent value="session" className="p-4">
+                            <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
                             <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
                           </TabsContent>
                           <TabsContent value="social"  className="p-4">Social Features go here</TabsContent>
