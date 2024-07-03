@@ -95,6 +95,7 @@ const Player = () => {
 
   function endSession(){
     // todo
+    
   }
 
   function getReadyText(session) {
@@ -211,7 +212,7 @@ const Player = () => {
                           <TabsContent value="session" className="p-4">
                             <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
                             <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
-                            <pre>
+                            <pre className="max-h-40 overflow-y-scroll">
                               {reportText}
                             </pre>
                           </TabsContent>

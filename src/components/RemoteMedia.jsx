@@ -124,6 +124,10 @@ export function RemoteMedia(props){
                      // @ts-ignore
                     sdpSemantics: "unified-plan"
                 });
+
+                if(props.onPeerConnection){
+                    props.onPeerConnection(peer_connection);
+                }
                 
 
                 peer_connection.addEventListener('icecandidate', (event) => {
@@ -192,6 +196,7 @@ export function RemoteMedia(props){
 
                 // TODO: client make offer? not sure if useful?
                 
+                // old race condition testing code
                 /*setTimeout(() => {
                     startManualOffer()
                 }, 1000);*/
