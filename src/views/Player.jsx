@@ -51,6 +51,11 @@ const Player = () => {
   let [session, setSession] = React.useState(null);
   let [sid, setSid] = React.useState(query.get("sid"));
   let [test, setTest] = React.useState(query.get("test"));
+  let [reportText, setReportText] = React.useState("Connection Status Report will appear here.");
+
+  function onStatusReport(report){
+    setReportText(report);
+  }
 
   function updateSessionInfo() {
     let sid = query.get("sid");
@@ -195,7 +200,7 @@ const Player = () => {
                       aria-describedby="loader"
                     >
                       <div className="col-span-9 bg-background-lighter">
-                        <RemoteMedia sid = {session.sid} />
+                        <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
                       </div>
                       <div className="col-span-3 bg-background-lighter">
                         <Tabs defaultValue="session" className="w-full p-4">
@@ -206,6 +211,9 @@ const Player = () => {
                           <TabsContent value="session" className="p-4">
                             <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
                             <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
+                            <pre>
+                              {reportText}
+                            </pre>
                           </TabsContent>
                           <TabsContent value="social"  className="p-4">Social Features go here</TabsContent>
                         </Tabs>

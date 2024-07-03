@@ -3,6 +3,24 @@ import socket from "../utils/socket";
 import {bulkSocketManager} from "../utils/socket";
 import adapter from 'webrtc-adapter';
 
+function modifySdp(sdp){
+    const banned = [
+     //   "a=framerate",
+        "a=fmtp",
+     //   "a=ssrc",
+    ];
+    let lines = sdp.split("\r\n");
+    lines = lines.filter((line) => {
+        for(let bannedSeq of banned){
+            if(line.startsWith(bannedSeq)){
+                return false;
+            }
+        }
+        return true;
+    });
+    return lines.join("\r\n");
+}
+
 export function RemoteMedia(props){
     let domElementRef = React.useRef(null);
 
@@ -13,17 +31,18 @@ export function RemoteMedia(props){
     function send_to_daemon(data){
         socket.emit("send_to_session", sid, data);
     }
+    // for debugging
+    window["send_to_daemon"] = send_to_daemon;
 
     console.log("Rendering remote media", type, sid);
-
-    function forcePlay(){
-        domElementRef.current.play();
-    }
-
     function startManualOffer(){
         send_to_daemon({
             offer_request_source: "client"
         });
+    }
+
+    function forcePlay(){
+        domElementRef.current.play();
     }
 
     React.useEffect(() => {
@@ -36,6 +55,8 @@ export function RemoteMedia(props){
 
         /** @type {RTCPeerConnection} */
         let peer_connection;
+        let sent_ice_canidates = 0;
+        let recv_ice_canidates = 0;
 
         const initHandler = (success) => {
             if(success){
@@ -48,33 +69,98 @@ export function RemoteMedia(props){
             });
         };
 
+        const updateStatus = async () => {
+            let report = "Realtime connection not established yet.";
+            if(peer_connection){
+                let stats = await peer_connection.getStats();
+                // console.log("Stats", stats);
+                report = `Current ICE Connection State: ${peer_connection.iceConnectionState}\n`;
+                report += `ICE Gathering State: ${peer_connection.iceGatheringState}\n`;
+                report += `ICE Selection State: ${peer_connection.iceConnectionState}\n`;
+                report += `Signaling State: ${peer_connection.signalingState}\n`;
+                report += `Peer Connection State: ${peer_connection.connectionState}\n`;
+                if(peer_connection.localDescription){
+                    report += `Local Description: ${peer_connection.localDescription.sdp}\n`;
+                }else{
+                    report += `Local Description: null\n`;
+                }
+                if(peer_connection.remoteDescription){
+                    report += `Remote Description: ${peer_connection.remoteDescription.sdp}\n`;
+                }else{
+                    report += `Remote Description: null\n`;
+                }
+                report += "Stats:\n";
+                stats.forEach((stat) => {
+                    Object.keys(stat).forEach((key) => {
+                        report += `${key}: ${stat[key]}\n`;
+                    });
+                });    
+            }
+            
+            // console.log(props);
+            if(props.onStatusUpdate){
+                props.onStatusUpdate(report);
+            }
+            // console.log(report);
+        }
+        
+        let updateInterval = setInterval(updateStatus, 100);
+
         const peerHandler = async (peerId, data) => {
             console.log("peer message",peerId, data);
             if(data.provision_ok) {
                 console.log("Provision ok making rtcpeerconnection");
+               
                 peer_connection = new RTCPeerConnection({
+                    // if more are needed
+                    // https://github.com/adrigardi90/video-chat/blob/master/src/utils/ICEServers.js
                     iceServers: [
-                        {
+                       {
                             urls: "stun:stun.l.google.com:19302"
                         }
                     ],
+                    // bundlePolicy: "max-bundle",
                     iceTransportPolicy: "all",
+                     // @ts-ignore
+                    sdpSemantics: "unified-plan"
                 });
+                
 
                 peer_connection.addEventListener('icecandidate', (event) => {
-                    console.log("icecandidate", event);
+                    console.log("local icecandidate", event);
+                    let candidate = event.candidate;
+                    sent_ice_canidates ++;
+                    if(!candidate){
+                        // @ts-ignore
+                        candidate = {
+                            candidate: "",
+                            sdpMLineIndex: 0
+                        }
+                    }else if(candidate.candidate == "" || candidate.candidate == null){
+                        // @ts-ignore
+                        candidate = {
+                            candidate: "",
+                            sdpMLineIndex: 0
+                        }
+                    }
+                    if(candidate.candidate == ""){
+                        console.warn("Empty candidate means no more from client");
+                    }
                     send_to_daemon({
-                        ...event.candidate
+                        ...candidate
                     });
-                   
+                    
+                    updateStatus();
                 });
 
                 peer_connection.addEventListener('iceconnectionstatechange', (event) => {
                     console.log("iceconnectionstatechange", event);
+                    updateStatus();
                 });
 
                 peer_connection.addEventListener('connectionstatechange', (event) => {
                     console.log("connectionstatechange", event);
+                    updateStatus();
                 });
 
                 peer_connection.addEventListener('datachannel', (event) => {
@@ -91,23 +177,47 @@ export function RemoteMedia(props){
                         console.warn("Error playing stream", ex);
                         // prompt for manual click
                     }
+                    updateStatus();
+                });
+
+                peer_connection.addEventListener("signalingstatechange", (event) => {
+                    console.log("signalingstatechange", event);
+                    updateStatus();
+                });
+
+                peer_connection.addEventListener("close", (ev) => {
+                    console.log("Peer connection closed...", ev);
+                    peer_connection = null;
                 });
 
                 // TODO: client make offer? not sure if useful?
+                
+                /*setTimeout(() => {
+                    startManualOffer()
+                }, 1000);*/
+
                 startManualOffer();
 
                 // starts stuff
                 
 
-            }else if(data.candidate){
-                console.log(data.candidate);
+            }else if("candidate" in data){
+                console.log("remote candidate",data.candidate);
+                if(data.candidate == ""){
+                    console.warn("Empty candidate means no more");
+                }
+                recv_ice_canidates ++;
                 peer_connection.addIceCandidate(new RTCIceCandidate(data));
-            }else if(data.sdp){
+                updateStatus();
+            }else if("sdp" in data){
                 try{
                     if(data.type == "offer"){
+                        data.sdp = modifySdp(data.sdp);
+                        window["remoteOffer"] = data;
                         await peer_connection.setRemoteDescription(data);
                         console.log("Creating answer");
-                        let answer = await peer_connection.createAnswer()
+                        let answer = await peer_connection.createAnswer();
+                        window["localAnswer"] = answer;
                         console.log("Setting local desc",answer);
                         await peer_connection.setLocalDescription(answer);
                         console.log("Sending answer",answer);
@@ -128,9 +238,14 @@ export function RemoteMedia(props){
         socket.on("authed", initHandler);
         socket.on("peer_message", peerHandler);
         return () => {
+            if(peer_connection){
+                console.log("Closing peer connection");
+                peer_connection.close();
+            }
             console.log("Removing event listeners");
             socket.off("authed", initHandler);
             socket.off("peer_message", peerHandler);
+            clearInterval(updateInterval);
         }
     }, []);
     if(type == "audio"){
