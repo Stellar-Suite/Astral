@@ -16,3 +16,21 @@ export function cn(...inputs) {
 export function unfuck(inp){
   return inp;
 }
+
+export function modifySdpHack(sdp){
+  const banned = [
+   //   "a=framerate",
+      "a=fmtp",
+   //   "a=ssrc",
+  ];
+  let lines = sdp.split("\r\n");
+  lines = lines.filter((line) => {
+      for(let bannedSeq of banned){
+          if(line.startsWith(bannedSeq)){
+              return false;
+          }
+      }
+      return true;
+  });
+  return lines.join("\r\n");
+}

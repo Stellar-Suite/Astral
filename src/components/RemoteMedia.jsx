@@ -2,24 +2,7 @@ import React from 'react';
 import socket, { bulkPeerConnectionManager } from "../utils/socket";
 import {bulkSocketManager} from "../utils/socket";
 import adapter from 'webrtc-adapter';
-
-function modifySdp(sdp){
-    const banned = [
-     //   "a=framerate",
-        "a=fmtp",
-     //   "a=ssrc",
-    ];
-    let lines = sdp.split("\r\n");
-    lines = lines.filter((line) => {
-        for(let bannedSeq of banned){
-            if(line.startsWith(bannedSeq)){
-                return false;
-            }
-        }
-        return true;
-    });
-    return lines.join("\r\n");
-}
+import { modifySdpHack } from '../@/lib/utils';
 
 export function RemoteMedia(props){
     let domElementRef = React.useRef(null);
@@ -230,7 +213,7 @@ export function RemoteMedia(props){
             }else if("sdp" in data){
                 try{
                     if(data.type == "offer"){
-                        data.sdp = modifySdp(data.sdp);
+                        data.sdp = modifySdpHack(data.sdp);
                         window["remoteOffer"] = data;
                         await peer_connection.setRemoteDescription(data);
                         console.log("Creating answer");
