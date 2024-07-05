@@ -1,9 +1,9 @@
-import { modifySdpHack } from "@/lib/utils";
+import { modifySdpHack } from "../@/lib/utils";
 import { Socket, io } from "socket.io-client";
-import { getApiUrl } from "utils/api";
-import { getJwt } from "utils/login";
+import { getApiUrl } from "../utils/api";
+import { getJwt } from "../utils/login";
 
-const defaultRtcConfig = {
+export const defaultRtcConfig = {
     // if more are needed
     // https://github.com/adrigardi90/video-chat/blob/master/src/utils/ICEServers.js
     iceServers: [
@@ -16,7 +16,7 @@ const defaultRtcConfig = {
     // iceTransportPolicy: "all",
 };
 
-class StreamerPeerConnection extends EventTarget {
+export class StreamerPeerConnection extends EventTarget {
     constructor(sid, options, type = "video"){
         super();
         this.sid = sid;
@@ -232,8 +232,9 @@ class StreamerPeerConnection extends EventTarget {
     parent = null;
 }
 
-class StreamerClient {
+export class StreamerClient extends EventTarget {
     constructor(sid, options){
+        super();
         this.sid = sid;
         this.options = options;
         this.video = new StreamerPeerConnection(sid, options, "video");
@@ -250,3 +251,55 @@ class StreamerClient {
         this.video.stop();
     }
 }
+// manages freeing things for react
+export class StreamerClientManager extends EventTarget {
+
+    clientRefCounter = new Map();
+
+    constructor(options){
+        super();
+        this.options = options;
+        this.clients = new Map();
+    }
+
+    /**
+     * 
+     *
+     * @param {string} sid
+     * @param {*} options
+     * @return {StreamerClient} 
+     * @memberof StreamerClientManager
+     */
+    allocate(sid, options) {
+        if(this.clients.has(sid)){
+            return this.clients.get(sid);
+        }
+        let client = new StreamerClient(sid, options);
+        this.clients.set(sid, client);
+        this.clientRefCounter.set(sid, 1);
+        client.start();
+        return client;
+    }
+
+    deallocate(sid) {
+        let client = this.clients.get(sid);
+        if(!client){
+            return;
+        }
+        this.clientRefCounter.set(sid, this.clientRefCounter.get(sid) - 1);
+        if(this.clientRefCounter.get(sid) <= 0){
+            console.warn("Freeing client", sid);
+            if(this.clientRefCounter.get(sid) < 0){
+                console.warn("Ref counter is negative, double free? ", sid);
+            }
+            this.clientRefCounter.delete(sid);
+            this.clients.delete(sid);
+            client.stop();
+            return true;
+        }
+        return false;
+    }
+}
+
+export const streamerClientManager = new StreamerClientManager();
+
