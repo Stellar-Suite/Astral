@@ -126,6 +126,7 @@ export function RemoteMedia(props){
                     iceTransportPolicy: "all",
                 }));
 
+                console.log("Opening data channel");
                 const dataChannel = bulkPeerConnectionManager.ensureDataChannel(key);
                 dataChannel.addEventListener("open", () => {
                     console.log("Data channel open");
@@ -208,6 +209,12 @@ export function RemoteMedia(props){
                 }, 1000);*/
 
                 startManualOffer();
+
+                peer_connection.addEventListener("negotiationneeded", (ev) => {
+                    console.log(peer_connection.signalingState, peer_connection.connectionState);
+                    console.log("Negotiation needed...");
+                    // startManualOffer();
+                });
 
                 // starts stuff
                 
