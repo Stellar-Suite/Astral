@@ -17,7 +17,7 @@ export const defaultRtcConfig = {
 };
 
 export class StreamerPeerConnection extends EventTarget {
-    constructor(sid, options, type = "video"){
+    constructor(sid, options = {}, type = "video"){
         super();
         this.sid = sid;
         this.options = options;
@@ -52,11 +52,11 @@ export class StreamerPeerConnection extends EventTarget {
     streams = [];
 
     onSocketFirstConnect() {
-        if(getJwt()){
+        /*if(getJwt()){
             this.socket.emit("jwt", getJwt());
         }else{
             console.warn("socket did not auth because we have no jwt creds");
-        }
+        }*/
     }
 
     onSocketConnect() {
@@ -72,7 +72,8 @@ export class StreamerPeerConnection extends EventTarget {
         this.socket.emit("send_to_session", this.sid, data);
     }
 
-    onAuthenticateOk(){
+    onAuthenticateOk(data){
+        console.warn("Authenticated, now requesting rtc session");
         this.sendToDaemon({
             rtc_provision_start: Date.now()
         });
@@ -91,6 +92,7 @@ export class StreamerPeerConnection extends EventTarget {
     }
 
     startManualOffer(){
+        console.log("starting manual offer");
         this.sendToDaemon({
             offer_request_source: "client"
         });
@@ -192,7 +194,7 @@ export class StreamerPeerConnection extends EventTarget {
     processingSdp = false;
 
     async handlePeerMessage(peerId, data){
-        console.log("peer message",peerId, data);
+        console.log("new peer message on connection",peerId, data);
         this.dispatchEvent(new CustomEvent("peer_message", {
             detail: {
                 peerId,
@@ -201,7 +203,10 @@ export class StreamerPeerConnection extends EventTarget {
         }));
         if(data.provision_ok) {
             if(!this.peerConnection){
+                console.log("initalizing peer connection");
                 this.initPeerConnection();
+            } else {
+                console.warn("Already have peer connection, ignoring provision_ok");
             }
         }else if("candidate" in data){
             await this.onRemoteCandidate(data);
@@ -212,6 +217,8 @@ export class StreamerPeerConnection extends EventTarget {
 
     start() {
         this.socket = io(getApiUrl());
+        this.socket.on("peer_message", this.handlePeerMessage.bind(this));
+        this.socket.on("authed", this.onAuthenticateOk.bind(this));
         this.socket.on("connect", () => {
             if(!this.socketConnectedOnce){
                 this.onSocketFirstConnect();
@@ -219,7 +226,7 @@ export class StreamerPeerConnection extends EventTarget {
             this.onSocketConnect();
         });
 
-        this.socket.on("peer_message", this.handlePeerMessage.bind(this));
+        
     }
 
     stop() {
@@ -233,7 +240,7 @@ export class StreamerPeerConnection extends EventTarget {
 }
 
 export class StreamerClient extends EventTarget {
-    constructor(sid, options){
+    constructor(sid, options = {}){
         super();
         this.sid = sid;
         this.options = options;
@@ -256,7 +263,7 @@ export class StreamerClientManager extends EventTarget {
 
     clientRefCounter = new Map();
 
-    constructor(options){
+    constructor(options = {}){
         super();
         this.options = options;
         this.clients = new Map();
