@@ -1,5 +1,5 @@
 import React from 'react';
-import socket from "../utils/socket";
+import socket, { bulkPeerConnectionManager } from "../utils/socket";
 import {bulkSocketManager} from "../utils/socket";
 import adapter from 'webrtc-adapter';
 
@@ -26,7 +26,8 @@ export function RemoteMedia(props){
 
     let type = props.type || "video";
     let sid = props.sid;
-    let socket = bulkSocketManager.getSocket(sid + ":" + type);
+    let key = props.key || (sid + ":" + type);
+    let socket = bulkSocketManager.getSocket(key);
 
     function send_to_daemon(data){
         socket.emit("send_to_session", sid, data);
@@ -91,6 +92,7 @@ export function RemoteMedia(props){
                 }
                 report += "Stats:\n";
                 stats.forEach((stat) => {
+                    // self-note: the key here shadows the actual key
                     Object.keys(stat).forEach((key) => {
                         report += `${key}: ${stat[key]}\n`;
                     });
@@ -111,18 +113,22 @@ export function RemoteMedia(props){
             if(data.provision_ok) {
                 console.log("Provision ok making rtcpeerconnection");
                
-                peer_connection = new RTCPeerConnection({
+                peer_connection = bulkPeerConnectionManager.setPeerConnection(key, new RTCPeerConnection({
                     // if more are needed
                     // https://github.com/adrigardi90/video-chat/blob/master/src/utils/ICEServers.js
                     iceServers: [
                        {
                             urls: "stun:stun.l.google.com:19302"
                         }
+                        // TODO: add turn server for puiblic beta
                     ],
                     // bundlePolicy: "max-bundle",
                     iceTransportPolicy: "all",
-                     // @ts-ignore
-                    sdpSemantics: "unified-plan"
+                }));
+
+                const dataChannel = bulkPeerConnectionManager.ensureDataChannel(key);
+                dataChannel.addEventListener("open", () => {
+                    console.log("Data channel open");
                 });
 
                 if(props.onPeerConnection){
