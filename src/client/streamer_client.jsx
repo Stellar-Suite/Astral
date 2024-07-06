@@ -92,19 +92,24 @@ export class StreamerPeerConnection extends EventTarget {
         this.dataChannels = {
             reliable: this.peerConnection.createDataChannel("reliable", {
                 ordered: true,
+                negotiated: false
             }),
             unreliable: this.peerConnection.createDataChannel("reliable", {
                 ordered: false,
                 maxRetransmits: 0,
+                negotiated: false
             }),
         };
         Object.values(this.dataChannels).forEach((channel) => {
             channel.addEventListener("message", this.onDataChannelMessage.bind(this));
             channel.addEventListener("open", this.onDataChannelOpen.bind(this));
             channel.addEventListener("error", this.onDataChannelError.bind(this));
-
         });
         this.startManualOffer();
+    }
+
+    onError(event){
+
     }
 
     onDataChannelMessage(event){
@@ -206,13 +211,16 @@ export class StreamerPeerConnection extends EventTarget {
         try{
             if(data.type == "offer"){
                 data.sdp = modifySdpHack(data.sdp);
+                console.log("Remote Offer")
+                console.log(data.sdp);
                 await this.peerConnection.setRemoteDescription(data);
                 console.log("Creating answer");
                 let answer = await this.peerConnection.createAnswer();
                 window["localAnswer"] = answer;
                 console.log("Setting local desc",answer);
                 await this.peerConnection.setLocalDescription(answer);
-                console.log("Sending answer",answer);
+                console.log("Sending answer");
+                console.log(answer.sdp);
                 this.sendToDaemon(answer); // already has sdp + type field
             }else if(data.type == "answer"){
                 await this.peerConnection.setRemoteDescription(data);
