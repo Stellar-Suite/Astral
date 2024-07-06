@@ -88,7 +88,38 @@ export class StreamerPeerConnection extends EventTarget {
         this.peerConnection.addEventListener("signalingstatechange", this.onSignalingStateChange.bind(this));
         this.peerConnection.addEventListener("negotiationneeded", this.onNegotiationNeeded.bind(this));
         this.peerConnection.addEventListener("track", this.onTrack.bind(this));
+        // create data channels
+        this.dataChannels = {
+            reliable: this.peerConnection.createDataChannel("reliable", {
+                ordered: true,
+            }),
+            unreliable: this.peerConnection.createDataChannel("reliable", {
+                ordered: false,
+                maxRetransmits: 0,
+            }),
+        };
+        Object.values(this.dataChannels).forEach((channel) => {
+            channel.addEventListener("message", this.onDataChannelMessage.bind(this));
+            channel.addEventListener("open", this.onDataChannelOpen.bind(this));
+            channel.addEventListener("error", this.onDataChannelError.bind(this));
+
+        });
         this.startManualOffer();
+    }
+
+    onDataChannelMessage(event){
+
+    }
+
+    onDataChannelError(event){
+        console.warn("data channel error", event);
+    }
+
+    onDataChannelOpen(event){
+        console.log("data channel open", event);
+    }
+
+    onDataChannelClose(event){
     }
 
     startManualOffer(){
@@ -133,6 +164,7 @@ export class StreamerPeerConnection extends EventTarget {
 
     onNegotiationNeeded(event){
         console.log("negotiation needed", event);
+        // this.startManualOffer();
     }
 
     /**
@@ -309,4 +341,4 @@ export class StreamerClientManager extends EventTarget {
 }
 
 export const streamerClientManager = new StreamerClientManager();
-
+window["streamerClientManager"] = streamerClientManager;
