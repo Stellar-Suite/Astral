@@ -103,11 +103,11 @@ export class StreamerPeerConnection extends EventTarget {
         /*this.transciever = this.peerConnection.addTransceiver(this.type, {
             direction: "recvonly"
         });*/
-        Object.values(this.dataChannels).forEach((channel) => {
+        /*Object.values(this.dataChannels).forEach((channel) => {
             channel.addEventListener("message", this.onDataChannelMessage.bind(this));
             channel.addEventListener("open", this.onDataChannelOpen.bind(this));
             channel.addEventListener("error", this.onDataChannelError.bind(this));
-        });
+        });*/
         // experiment
         // this.peerConnection.createOffer().then(console.log);
         
@@ -119,6 +119,20 @@ export class StreamerPeerConnection extends EventTarget {
 
     }
 
+     /**
+     * Fired when a data channel is created
+     *
+     * @param {RTCDataChannelEvent} event
+     * @memberof StreamerPeerConnection
+     */
+     onDataChannel(event){
+        console.log("data channel created", event);
+        this.dataChannels[event.channel.label] = event.channel;
+        event.channel.addEventListener("message", this.onDataChannelMessage.bind(this));
+        event.channel.addEventListener("open", this.onDataChannelOpen.bind(this));
+        event.channel.addEventListener("error", this.onDataChannelError.bind(this));
+    }
+
     onDataChannelMessage(event){
 
     }
@@ -127,6 +141,7 @@ export class StreamerPeerConnection extends EventTarget {
         console.warn("data channel error", event);
     }
 
+   
     onDataChannelOpen(event){
         console.log("data channel open", event);
     }
@@ -155,11 +170,6 @@ export class StreamerPeerConnection extends EventTarget {
 
     getStream(){
         return this.streams.find((stream) => stream.active);
-    }
-
-    // just here for logging for now
-    onDataChannel(event){
-        console.log("data channel open", event);
     }
 
     onConnectionStateChange(event){
