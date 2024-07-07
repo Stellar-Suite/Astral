@@ -105,6 +105,9 @@ export class StreamerPeerConnection extends EventTarget {
             channel.addEventListener("open", this.onDataChannelOpen.bind(this));
             channel.addEventListener("error", this.onDataChannelError.bind(this));
         });
+        // experiment
+        this.peerConnection.createOffer().then(console.log);
+        
         this.startManualOffer();
     }
 
@@ -170,11 +173,19 @@ export class StreamerPeerConnection extends EventTarget {
     onNegotiationNeeded(event){
         console.log("negotiation needed", event);
         // this.startManualOffer();
+        this.startManualRenegotiate();
     }
 
     async startManualRenegotiate(){
         // await this.peerConnection.setLocalDescription();
         // let desc = this.peerConnection.localDescription;
+        // this.sendToDaemon(desc);
+        let offer = await this.peerConnection.createOffer();
+        await this.peerConnection.setLocalDescription(offer);
+        let desc = this.peerConnection.localDescription;
+        console.log("manual offer", desc, offer);
+        // one of this will work
+        this.sendToDaemon(offer);
         // this.sendToDaemon(desc);
     }
 
