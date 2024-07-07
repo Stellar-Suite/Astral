@@ -90,7 +90,7 @@ export class StreamerPeerConnection extends EventTarget {
         this.peerConnection.addEventListener("track", this.onTrack.bind(this));
         // create data channels
         this.dataChannels = {
-            reliable: this.peerConnection.createDataChannel("reliable", {
+            /*reliable: this.peerConnection.createDataChannel("reliable", {
                 ordered: true,
                 negotiated: false
             }),
@@ -98,7 +98,7 @@ export class StreamerPeerConnection extends EventTarget {
                 ordered: false,
                 maxRetransmits: 0,
                 negotiated: false
-            }),
+            }),*/
         };
         /*this.transciever = this.peerConnection.addTransceiver(this.type, {
             direction: "recvonly"
