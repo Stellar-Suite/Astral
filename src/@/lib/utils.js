@@ -20,7 +20,7 @@ export function unfuck(inp){
 export function modifySdpHack(sdp){
   const banned = [
    //   "a=framerate",
-      "a=fmtp",
+   //   "a=fmtp",
    //   "a=ssrc",
   ];
   let lines = sdp.split("\r\n");
@@ -31,6 +31,21 @@ export function modifySdpHack(sdp){
           }
       }
       return true;
+  }).map((line) => {
+    if(line.startsWith("a=fmtp")){
+      // parse in ugly way
+      const split = line.split(" ");
+      const props = split[1].split(";");
+      const newProps = props.filter((prop) => {
+        if(prop.startsWith("sprop-parameter-sets")){
+          return false;
+        }
+        return true;
+      });
+      split[1] = newProps.join(";");
+      line = split.join(" ");
+    }
+    return line;
   });
   return lines.join("\r\n");
 }

@@ -79,7 +79,7 @@ export class StreamerPeerConnection extends EventTarget {
         });
     }
 
-    initPeerConnection(){
+    async initPeerConnection(){
         this.peerConnection = new RTCPeerConnection(this.options.rtcConfig || defaultRtcConfig);
         this.peerConnection.addEventListener("icecandidate", this.onIceCandidate.bind(this));
         this.peerConnection.addEventListener("datachannel", this.onDataChannel.bind(this));
@@ -100,6 +100,9 @@ export class StreamerPeerConnection extends EventTarget {
                 negotiated: false
             }),
         };
+        this.transciever = this.peerConnection.addTransceiver(this.type, {
+            direction: "recvonly"
+        });
         Object.values(this.dataChannels).forEach((channel) => {
             channel.addEventListener("message", this.onDataChannelMessage.bind(this));
             channel.addEventListener("open", this.onDataChannelOpen.bind(this));
@@ -108,7 +111,8 @@ export class StreamerPeerConnection extends EventTarget {
         // experiment
         this.peerConnection.createOffer().then(console.log);
         
-        this.startManualOffer();
+        await this.startManualRenegotiate();
+        // this.requestManualOfferFromServer();
     }
 
     onError(event){
@@ -130,7 +134,7 @@ export class StreamerPeerConnection extends EventTarget {
     onDataChannelClose(event){
     }
 
-    startManualOffer(){
+    requestManualOfferFromServer(){
         console.log("starting manual offer");
         this.sendToDaemon({
             offer_request_source: "client"
@@ -177,13 +181,14 @@ export class StreamerPeerConnection extends EventTarget {
     }
 
     async startManualRenegotiate(){
-        // await this.peerConnection.setLocalDescription();
+        await this.peerConnection.setLocalDescription();
         // let desc = this.peerConnection.localDescription;
         // this.sendToDaemon(desc);
-        let offer = await this.peerConnection.createOffer();
+        // let offer = await this.peerConnection.createOffer();
+        let offer = this.peerConnection.localDescription;
         await this.peerConnection.setLocalDescription(offer);
         let desc = this.peerConnection.localDescription;
-        console.log("manual offer", desc, offer);
+        console.log("manual local offer", desc, offer);
         // one of this will work
         this.sendToDaemon(offer);
         // this.sendToDaemon(desc);
@@ -242,7 +247,9 @@ export class StreamerPeerConnection extends EventTarget {
                 console.log(answer.sdp);
                 this.sendToDaemon(answer); // already has sdp + type field
             }else if(data.type == "answer"){
+                console.log("Remote answered", data);
                 await this.peerConnection.setRemoteDescription(data);
+                await this.requestManualOfferFromServer();
             }
         }catch(ex){
             console.warn("SDP handling failed", ex);
