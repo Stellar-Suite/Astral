@@ -172,6 +172,12 @@ export class StreamerPeerConnection extends EventTarget {
         // this.startManualOffer();
     }
 
+    async startManualRenegotiate(){
+        // await this.peerConnection.setLocalDescription();
+        // let desc = this.peerConnection.localDescription;
+        // this.sendToDaemon(desc);
+    }
+
     /**
      *
      * @param {RTCTrackEvent} event
@@ -215,10 +221,12 @@ export class StreamerPeerConnection extends EventTarget {
                 console.log(data.sdp);
                 await this.peerConnection.setRemoteDescription(data);
                 console.log("Creating answer");
-                let answer = await this.peerConnection.createAnswer();
+                // let answer = await this.peerConnection.createAnswer();
+                await this.peerConnection.setLocalDescription();
+                let answer = this.peerConnection.localDescription;
                 window["localAnswer"] = answer;
                 console.log("Setting local desc",answer);
-                await this.peerConnection.setLocalDescription(answer);
+                // await this.peerConnection.setLocalDescription(answer);
                 console.log("Sending answer");
                 console.log(answer.sdp);
                 this.sendToDaemon(answer); // already has sdp + type field
