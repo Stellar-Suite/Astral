@@ -100,19 +100,19 @@ export class StreamerPeerConnection extends EventTarget {
                 negotiated: false
             }),
         };
-        this.transciever = this.peerConnection.addTransceiver(this.type, {
+        /*this.transciever = this.peerConnection.addTransceiver(this.type, {
             direction: "recvonly"
-        });
+        });*/
         Object.values(this.dataChannels).forEach((channel) => {
             channel.addEventListener("message", this.onDataChannelMessage.bind(this));
             channel.addEventListener("open", this.onDataChannelOpen.bind(this));
             channel.addEventListener("error", this.onDataChannelError.bind(this));
         });
         // experiment
-        this.peerConnection.createOffer().then(console.log);
+        // this.peerConnection.createOffer().then(console.log);
         
-        await this.startManualRenegotiate();
-        // this.requestManualOfferFromServer();
+        // await this.startManualRenegotiate();
+        this.requestManualOfferFromServer();
     }
 
     onError(event){
@@ -249,7 +249,7 @@ export class StreamerPeerConnection extends EventTarget {
             }else if(data.type == "answer"){
                 console.log("Remote answered", data);
                 await this.peerConnection.setRemoteDescription(data);
-                await this.requestManualOfferFromServer();
+                // await this.requestManualOfferFromServer();
             }
         }catch(ex){
             console.warn("SDP handling failed", ex);
