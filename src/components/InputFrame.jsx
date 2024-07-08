@@ -14,7 +14,13 @@ export function InputFrame(props) {
    * @param {boolean} state
    */
   function onKeyStateChange(ev, state){
-        
+    client.sendReliable({
+      type: "keychange",
+      key: ev.key,
+      code: ev.code,
+      composition: ev.isComposing,
+      state: state,
+    });
   }
 
   /**
