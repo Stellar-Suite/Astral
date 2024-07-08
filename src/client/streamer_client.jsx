@@ -134,7 +134,7 @@ export class StreamerPeerConnection extends EventTarget {
     }
 
     onDataChannelMessage(event){
-
+        console.log("data channel message", event);
     }
 
     onDataChannelError(event){
@@ -225,6 +225,24 @@ export class StreamerPeerConnection extends EventTarget {
                 streams: event.streams
             }
         }));
+    }
+
+    /**
+     *
+     * @return {RTCDataChannel} 
+     * @memberof StreamerPeerConnection
+     */
+    getReliableDataChannel(){
+        return this.dataChannels.reliable;
+    }
+
+    /**
+     *
+     * @return {RTCDataChannel} 
+     * @memberof StreamerPeerConnection
+     */
+    getUnreliableDataChannel(){
+        return this.dataChannels.unreliable;
     }
 
     async onRemoteCandidate(data){
@@ -326,12 +344,28 @@ export class StreamerClient extends EventTarget {
         this.audio.parent = this;
     }
 
+    getDefaultConnection(){
+        return this.video;
+    }
+
     start() {
         this.video.start();
     }
 
     stop() {
         this.video.stop();
+    }
+
+    sendUnreliable(data){
+        if(!this.video.getUnreliableDataChannel()) return false;
+        this.video.getUnreliableDataChannel().send(data);
+        return true;
+    }
+
+    sendReliable(data){
+        if(!this.video.getReliableDataChannel()) return false;
+        this.video.getReliableDataChannel().send(data);
+        return true;
     }
 }
 // manages freeing things for react
