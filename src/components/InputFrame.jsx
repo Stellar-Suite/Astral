@@ -1,5 +1,5 @@
-import { unfuck } from "@/lib/utils";
-import { streamerClientManager } from "client/streamer_client";
+import { unfuck } from "../@/lib/utils";
+import { streamerClientManager } from "../client/streamer_client";
 import React from "react";
 
 export function InputFrame(props) {
@@ -14,13 +14,14 @@ export function InputFrame(props) {
    * @param {boolean} state
    */
   function onKeyStateChange(ev, state){
-    client.sendReliable({
+    console.log("key state change send",client.sendReliable({
       type: "keychange",
       key: ev.key,
       code: ev.code,
       composition: ev.isComposing,
       state: state,
-    });
+      timestamp: Date.now()
+    }));
   }
 
   /**
@@ -42,7 +43,7 @@ export function InputFrame(props) {
   }
 
   return (
-    <div className={"w-auto h-auto" + extraClasses} style={props.style} onKeyDown={unfuck(onKeyDown)} onKeyUp={unfuck(onKeyUp)}>
+    <div className={"w-auto h-auto input-frame " + extraClasses} style={props.style} onKeyDown={unfuck(onKeyDown)} onKeyUp={unfuck(onKeyUp)} tabIndex={0}>
        {props.children}
     </div>
   );

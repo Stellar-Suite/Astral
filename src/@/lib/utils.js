@@ -39,6 +39,8 @@ export function modifySdpHack(sdp){
       const newProps = props.filter((prop) => {
         if(prop.startsWith("sprop-parameter-sets")){
           return false;
+        }else if(prop.startsWith("profile-level-id")){
+          return false;
         }
         return true;
       });

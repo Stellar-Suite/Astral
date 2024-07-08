@@ -14,6 +14,7 @@ import { SESSION_STATE } from "../shared/protocol";
 import { Button } from "../@/components/ui/button";
 import RemoteMedia from "../components/RemoteMedia";
 import socket from "../utils/socket";
+import { InputFrame } from "../components/InputFrame";
 
 function useQuery() {
   const search = useLocation().search;
@@ -201,7 +202,9 @@ const Player = () => {
                       aria-describedby="loader"
                     >
                       <div className="col-span-9 bg-background-lighter">
-                        <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
+                        <InputFrame sid={session.sid}>
+                          <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
+                        </InputFrame>
                       </div>
                       <div className="col-span-3 bg-background-lighter">
                         <Tabs defaultValue="session" className="w-full p-4">

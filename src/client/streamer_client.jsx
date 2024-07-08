@@ -357,14 +357,16 @@ export class StreamerClient extends EventTarget {
     }
 
     sendUnreliable(data){
+        console.log("sending unreliable", data);
         if(!this.video.getUnreliableDataChannel()) return false;
-        this.video.getUnreliableDataChannel().send(data);
+        this.video.getUnreliableDataChannel().send(JSON.stringify(data));
         return true;
     }
 
     sendReliable(data){
+        console.log("sending reliable", data);
         if(!this.video.getReliableDataChannel()) return false;
-        this.video.getReliableDataChannel().send(data);
+        this.video.getReliableDataChannel().send(JSON.stringify(data));
         return true;
     }
 }
