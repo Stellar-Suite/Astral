@@ -418,6 +418,15 @@ export class StreamerClientManager extends EventTarget {
         }
         return false;
     }
+
+    /**
+     * 
+     * @return {StreamerClient[]} 
+     * @memberof StreamerClientManager
+     */
+    getAllClients(){
+        return Array.from(this.clients.values());
+    }
 }
 
 export const streamerClientManager = new StreamerClientManager();

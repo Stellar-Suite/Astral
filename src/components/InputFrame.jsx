@@ -18,7 +18,7 @@ export function InputFrame(props) {
       type: "keychange",
       key: ev.key,
       code: ev.code,
-      composition: ev.isComposing,
+      composition: ev.isComposing || false,
       state: state,
       timestamp: Date.now()
     }));

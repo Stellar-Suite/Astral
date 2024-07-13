@@ -12,7 +12,10 @@ export function RemoteMedia(props){
     let key = props.key || (sid + ":" + type);
     let socket = bulkSocketManager.getSocket(key);
 
-    function forcePlay(){
+    function forcePlay(ev){
+        if(ev){
+            ev.preventDefault();
+        }
         domElementRef.current.play();
     }
 
@@ -21,10 +24,11 @@ export function RemoteMedia(props){
         const client = streamerClientManager.allocate(sid, props.options);
         const conn = props.type == "audio" ? client.audio : client.video;
         // TODO: handle audio
-        conn.addEventListener("streams_changed", (ev) => {
+        const onStream = (ev) => {
             console.log("streams changed", ev);
             domElementRef.current.srcObject = conn.getStream();
-        });
+        };
+        conn.addEventListener("streams_changed", onStream);
 
         if(client.video.getStream()){
             domElementRef.current.srcObject = conn.getStream();
@@ -33,6 +37,7 @@ export function RemoteMedia(props){
         }
 
         return () => {
+            conn.removeEventListener("streams_changed", onStream);
             streamerClientManager.deallocate(sid);
         }
     }, []);
@@ -42,7 +47,7 @@ export function RemoteMedia(props){
         </div>;
     }else{
         return <div className = "w-full h-full m-0 p-0 bg-green-800" onClick = {forcePlay}>
-            <video className="remote-video w-full h-full" ref={domElementRef} controls></video>
+            <video className="remote-video w-full h-full" ref={domElementRef}></video>
         </div>;
     }
 }

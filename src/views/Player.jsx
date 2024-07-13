@@ -15,6 +15,7 @@ import { Button } from "../@/components/ui/button";
 import RemoteMedia from "../components/RemoteMedia";
 import socket from "../utils/socket";
 import { InputFrame } from "../components/InputFrame";
+import { Settings } from "../components/Settings";
 
 function useQuery() {
   const search = useLocation().search;
@@ -213,13 +214,16 @@ const Player = () => {
                             <TabsTrigger value="social">Social</TabsTrigger>
                           </TabsList>
                           <TabsContent value="session" className="p-4">
+                            <Settings />
                             <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
                             <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
-                            <pre className="max-h-40 overflow-y-scroll">
+                            <pre className="max-h-64 overflow-y-scroll">
                               {reportText}
                             </pre>
                           </TabsContent>
-                          <TabsContent value="social"  className="p-4">Social Features go here</TabsContent>
+                          <TabsContent value="social"  className="p-4">
+                          <Button variant = "primary" onClick={console.log} className="w-full mb-4">Share Session</Button>
+                          </TabsContent>
                         </Tabs>
                       </div>
                     </div>
