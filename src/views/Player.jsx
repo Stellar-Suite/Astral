@@ -26,7 +26,7 @@ function useQuery() {
 const mockSession = {
     "admin": {
         "id": "test",
-        "name": "Nameless User"
+        "name": "Test User"
     },
     "appSpecs": {
         "displayName": "Supertuxkart",
@@ -214,7 +214,7 @@ const Player = () => {
                             <TabsTrigger value="social">Social</TabsTrigger>
                           </TabsList>
                           <TabsContent value="session" className="p-4">
-                            <Settings />
+                            <Settings className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 w-full mb-4">Settings</Settings>
                             <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
                             <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
                             <pre className="max-h-64 overflow-y-scroll">

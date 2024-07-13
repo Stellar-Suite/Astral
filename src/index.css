@@ -21,13 +21,13 @@
       --popover-foreground: 224 71.4% 4.1%;
       /* todo: adjust these to be more optimal */
       --primary: #66c0f4;
-      --primary-foreground: #66c0f4;
+      --primary-foreground: #ffffff;
 
       --secondary: #2a475e;
       --secondary-foreground: #c7d5e0;
 
       --muted: #c7d5e0;
-      --muted-foreground: #4a4a4a;
+      --muted-foreground: #7a7a7a;
 
       --accent: 220 14.3% 95.9%;
       --accent-foreground: 220.9 39.3% 11%;

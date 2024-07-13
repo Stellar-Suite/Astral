@@ -5,7 +5,7 @@ import React from "react";
 export function Settings(props) {
   return (
     <Dialog>
-      <DialogTrigger>{props.text || "Settings"}</DialogTrigger>
+      <DialogTrigger className={props.className}>{props.children || "Settings"}</DialogTrigger>
       <DialogContent>
         <DialogHeader className={""}>
           <DialogTitle>Edit Settings</DialogTitle>
@@ -15,7 +15,7 @@ export function Settings(props) {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-                
+
           </div>
         </div>
         <DialogFooter className={""}>
