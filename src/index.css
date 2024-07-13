@@ -20,7 +20,7 @@
       --popover: 0 0% 100%;
       --popover-foreground: 224 71.4% 4.1%;
       /* todo: adjust these to be more optimal */
-      --primary: #66c0f4;
+      --primary: #1a9fff; /* orig: #66c0f4; */
       --primary-foreground: #ffffff;
 
       --secondary: #2a475e;
