@@ -46,6 +46,12 @@ export function InputFrame(props) {
 
   function onMouseMotion(ev){
     console.log("mouse motion",ev);
+    let streamSettings = null;
+    if(!client.video || !client.video.tracks || !client.video.tracks[0]){
+      console.warn("no video track for mouse input calculations");
+    }else{
+      streamSettings = client.video.tracks[0].getSettings();
+    }
     // TODO: add mouse lock logic
     // taken from ZW (private repo of personal project)
     if(selfRef.current){
@@ -53,6 +59,12 @@ export function InputFrame(props) {
       let offsetTop = selfRef.current.offsetTop;
       let x = ev.clientX - offsetLeft;
       let y = ev.clientY - offsetTop;
+
+      // pov people like to use the browser zoom tools
+      if(streamSettings && !props.disableAutoScaling){
+        x = x * (streamSettings.width / selfRef.current.clientWidth);
+        y = y * (streamSettings.height / selfRef.current.clientHeight);
+      }
 
       const isLocked = document.pointerLockElement ? true : false;
       // TODO: if it's locked start sending relative
