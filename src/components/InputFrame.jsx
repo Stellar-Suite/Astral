@@ -61,12 +61,14 @@ export function InputFrame(props) {
           type: "mouse_rel",
           x: ev.movementX,
           y: ev.movementY,
+          timestamp: Date.now(),
         });
       }else{
         client.sendUnreliable({
           type: "mouse_abs",
           x: x,
           y: y,
+          timestamp: Date.now(),
         });
       }
 
