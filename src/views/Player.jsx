@@ -203,7 +203,7 @@ const Player = () => {
                       aria-describedby="loader"
                     >
                       <div className="col-span-9 bg-background-lighter">
-                        <InputFrame sid={session.sid}>
+                        <InputFrame sid={session.sid} mouse mousebutton>
                           <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
                         </InputFrame>
                       </div>

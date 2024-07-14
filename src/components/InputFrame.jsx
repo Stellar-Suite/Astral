@@ -6,6 +6,8 @@ export function InputFrame(props) {
   let extraClasses = props.className || "";
   
   let client = streamerClientManager.allocate(props.sid, props.options || {});
+
+  let selfRef = React.useRef(null);
   
   /**
    * Send key state change
@@ -42,8 +44,57 @@ export function InputFrame(props) {
     onKeyStateChange(ev, false);
   }
 
+  function onMouseMotion(ev){
+    console.log("mouse motion",ev);
+    // TODO: add mouse lock logic
+    // taken from ZW (private repo of personal project)
+    if(selfRef.current){
+      let offsetLeft = selfRef.current.offsetLeft;
+      let offsetTop = selfRef.current.offsetTop;
+      let x = ev.clientX - offsetLeft;
+      let y = ev.clientY - offsetTop;
+
+      const isLocked = document.pointerLockElement ? true : false;
+      // TODO: if it's locked start sending relative
+      if(isLocked){
+        client.sendUnreliable({
+          type: "mouse_rel",
+          x: ev.movementX,
+          y: ev.movementY,
+        });
+      }else{
+        client.sendUnreliable({
+          type: "mouse_abs",
+          x: x,
+          y: y,
+        });
+      }
+
+    }else{
+      console.warn("mouse motion without ref to self");
+    }
+  }
+
+  function onMouseButton(ev){
+    console.log("mouse button",ev);
+  }
+
+  const listeners = {}
+
+  if(props.mousebutton || "mousebutton" in props){
+    listeners.onMouseDown = unfuck(onMouseButton);
+    listeners.onMouseUp = unfuck(onMouseButton);
+  }
+  if(props.mouse || "mouse" in props){
+    listeners.onMouseMove = unfuck(onMouseMotion);
+    listeners.onMouseLeave = unfuck(onMouseMotion);
+    listeners.onMouseEnter = unfuck(onMouseMotion);
+    // listeners.onMouseOver = unfuck(onMouseMotion);
+    // listeners.onMouseOut = unfuck(onMouseMotion);
+  }
+
   return (
-    <div className={"w-auto h-auto input-frame " + extraClasses} style={props.style} onKeyDown={unfuck(onKeyDown)} onKeyUp={unfuck(onKeyUp)} tabIndex={0}>
+    <div className={"w-auto h-auto input-frame " + extraClasses} style={props.style} onKeyDown={unfuck(onKeyDown)} onKeyUp={unfuck(onKeyUp)} tabIndex={0} {...listeners} ref={selfRef}>
        {props.children}
     </div>
   );
