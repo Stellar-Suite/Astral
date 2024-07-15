@@ -71,15 +71,17 @@ export function InputFrame(props) {
       if(isLocked){
         client.sendUnreliable({
           type: "mouse_rel",
-          x: ev.movementX,
-          y: ev.movementY,
+          x: Math.floor(ev.movementX),
+          y: Math.floor(ev.movementY),
           timestamp: Date.now(),
+          absolute_x: Math.floor(x),
+          absolute_y: Math.floor(y),
         });
       }else{
         client.sendUnreliable({
           type: "mouse_abs",
-          x: x,
-          y: y,
+          x: Math.floor(x),
+          y: Math.floor(y),
           timestamp: Date.now(),
         });
       }
@@ -88,6 +90,8 @@ export function InputFrame(props) {
       console.warn("mouse motion without ref to self");
     }
   }
+
+  // TODO: lock useEffect
 
   function onMouseButton(ev){
     console.log("mouse button",ev);
