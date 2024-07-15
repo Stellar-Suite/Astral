@@ -374,6 +374,7 @@ export class GamepadHelper extends EventTarget {
             return;
         }
         this.gamepadMetadata[gamepad.index].syncing = true;
+        // send to server
 
     }
 
@@ -412,6 +413,10 @@ export class GamepadHelper extends EventTarget {
         window.removeEventListener("gamepadconnected", this.onGamepadConnectedBinded);
         window.removeEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
         this.enabled = false;
+    }
+
+    tick(){
+
     }
 }
 
