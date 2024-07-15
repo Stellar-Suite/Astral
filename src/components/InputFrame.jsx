@@ -97,7 +97,7 @@ export function InputFrame(props) {
     console.log("mouse button",ev, state);
     client.sendReliable({
       type: "mouse_btn",
-      change: ev.button,
+      change: 1 << ev.button,
       buttons: ev.buttons,
       state: state,
       timestamp: Date.now(),
