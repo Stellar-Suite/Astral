@@ -333,6 +333,12 @@ export class StreamerPeerConnection extends EventTarget {
     parent = null;
 }
 
+/**
+ * Gamepad management helper that works outside of React
+ * @export
+ * @class GamepadHelper
+ * @extends {EventTarget}
+ */
 export class GamepadHelper extends EventTarget {
     enabled = false;
     constructor(client) {
@@ -343,14 +349,69 @@ export class GamepadHelper extends EventTarget {
          * @type {StreamerClient}
          */
         this.client = client;
+        this.onGamepadConnectedBinded = this.onGamepadConnected.bind(this);
+        this.onGamepadDisconnectedBinded = this.onGamepadDisconnected.bind(this);
+        this.gamepadMetadata = {};
+    }
+
+    /**
+     *
+     * @param {GamepadEvent} event
+     * @memberof GamepadHelper
+     */
+    onGamepadConnected(event){
+        console.log("gamepad connected", event);
+        this.gamepadMetadata[event.gamepad.index] = {
+            gamepad: event.gamepad,
+            id: event.gamepad.id,
+            syncing: false,
+        };
+        this.gamepads.push(event.gamepad);
+    }
+
+    attschToRemote(gamepad){
+        if(this.gamepadMetadata[gamepad.index].syncing){
+            return;
+        }
+        this.gamepadMetadata[gamepad.index].syncing = true;
+
+    }
+
+    detachFromRemote(gamepad){
+        if(!this.gamepadMetadata[gamepad.index].syncing){
+            return;
+        }
+        this.gamepadMetadata[gamepad.index].syncing = false;
+    }
+
+    /**
+     *
+     * @param {GamepadEvent} event
+     * @memberof GamepadHelper
+     */
+    onGamepadDisconnected(event){
+        console.log("gamepad disconnected", event);
+        this.gamepads = this.gamepads.filter((gamepad) => gamepad.index != event.gamepad.index);
+    }
+
+    // literally reinvented the navigator one but whatever
+    getGamepads(){
+        return this.gamepads;
     }
 
     enable(){
-
+        if(this.enabled) return;
+        console.log("enabling gamepads");
+        window.addEventListener("gamepadconnected", this.onGamepadConnectedBinded);
+        window.addEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
     }
 
     disable(){
-
+        if(!this.enabled) return;
+        console.log("disabling gamepads");
+        window.removeEventListener("gamepadconnected", this.onGamepadConnectedBinded);
+        window.removeEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
+        this.enabled = false;
     }
 }
 
