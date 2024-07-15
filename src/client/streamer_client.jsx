@@ -333,6 +333,27 @@ export class StreamerPeerConnection extends EventTarget {
     parent = null;
 }
 
+export class GamepadHelper extends EventTarget {
+    enabled = false;
+    constructor(client) {
+        super();
+        this.enabled = false;
+        this.gamepads = [];
+        /**
+         * @type {StreamerClient}
+         */
+        this.client = client;
+    }
+
+    enable(){
+
+    }
+
+    disable(){
+
+    }
+}
+
 export class StreamerClient extends EventTarget {
     constructor(sid, options = {}){
         super();
@@ -342,6 +363,10 @@ export class StreamerClient extends EventTarget {
         this.audio = new StreamerPeerConnection(sid, options, "audio");
         this.video.parent = this;
         this.audio.parent = this;
+        this.gamepads = new GamepadHelper();
+        if(!this.options.disableGamepads){
+            this.gamepads.enable();
+        }
     }
 
     getDefaultConnection(){
@@ -428,6 +453,7 @@ export class StreamerClientManager extends EventTarget {
         return Array.from(this.clients.values());
     }
 }
+
 
 export const streamerClientManager = new StreamerClientManager();
 window["streamerClientManager"] = streamerClientManager;
