@@ -93,15 +93,26 @@ export function InputFrame(props) {
 
   // TODO: lock useEffect
 
-  function onMouseButton(ev){
-    console.log("mouse button",ev);
+  function onMouseButton(ev, state){
+    console.log("mouse button",ev, state);
+    client.sendReliable({
+      type: "mouse_btn",
+      change: ev.button,
+      buttons: ev.buttons,
+      state: state,
+      timestamp: Date.now(),
+    });
   }
 
   const listeners = {}
 
   if(props.mousebutton || "mousebutton" in props){
-    listeners.onMouseDown = unfuck(onMouseButton);
-    listeners.onMouseUp = unfuck(onMouseButton);
+    listeners.onMouseDown = unfuck((ev) => {
+      onMouseButton(ev, true);
+    });
+    listeners.onMouseUp = unfuck((ev) => {
+      onMouseButton(ev, false);
+    });
   }
   if(props.mouse || "mouse" in props){
     listeners.onMouseMove = unfuck(onMouseMotion);
