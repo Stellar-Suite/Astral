@@ -387,6 +387,11 @@ export class GamepadHelper extends EventTarget {
             return;
         }
         metadata.connecting = true;
+        this.client.sendReliable({
+            type: "add_gamepad",
+            local_id: metadata.local_id,
+            product_type: metadata.product_type
+        });
         // send to server
         return (new Promise((resolve, reject) => {
             this.pendingGamepadPromiseResolves[metadata.local_id] = resolve;
@@ -401,7 +406,9 @@ export class GamepadHelper extends EventTarget {
 
     guessVendor(gamepad){
         if(gamepad.id.includes("Microsoft") || gamepad.id.toLowerCase().includes("xbox")){
-            return "xbox";
+            // TODO: add smarter detection
+            // because Xbox one controllers exist and I have one
+            return "Xbox360";
         }
         return "unknown";
     }
