@@ -1,7 +1,8 @@
 import { modifySdpHack } from "../@/lib/utils";
-import { Socket, io } from "socket.io-client";
+import { Socket, connect, io } from "socket.io-client";
 import { getApiUrl } from "../utils/api";
 import { getJwt } from "../utils/login";
+import _ from "lodash";
 
 export const defaultRtcConfig = {
     // if more are needed
@@ -391,6 +392,31 @@ export class GamepadHelper extends EventTarget {
         return "unknown";
     }
 
+    /**
+     *
+     * @param {Gamepad} gamepad
+     * @memberof GamepadHelper
+     */
+    serializeGamepad(gamepad){
+        return {
+            id: gamepad.id,
+            index: gamepad.index,
+            timestamp: gamepad.timestamp,
+            axes: gamepad.axes,
+            buttons: gamepad.buttons.map((button) => {
+                return {
+                    pressed: button.pressed,
+                    touched: button.touched,
+                    value: button.value
+                }
+            }),
+            mapping: gamepad.mapping,
+            connected: gamepad.connected
+        }
+    }
+
+    // TODO: ask server to generate ids
+
     tick(){
         this.gamepads.forEach((gamepad) => {
             let metadata = this.gamepadMetadata[gamepad.index];
@@ -398,7 +424,15 @@ export class GamepadHelper extends EventTarget {
                 metadata.lastTick = gamepad.timestamp;
                 // send state regardless
                 if(metadata.syncing){
-                    
+                    let serialized = this.serializeGamepad(gamepad);
+                    if(_.isEqual(metadata.lastSent, serialized)) {
+                        return;
+                    }
+                    metadata.lastSent = serialized;
+                    this.client.sendUnreliable({
+                        gamepad: serialized,
+                        type: "gamepad_update"
+                    });
                 }
             }
         });
