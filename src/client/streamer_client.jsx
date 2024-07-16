@@ -344,6 +344,9 @@ export class GamepadHelper extends EventTarget {
     constructor(client) {
         super();
         this.enabled = false;
+        /**
+         * @type {Gamepad[]}
+         */
         this.gamepads = [];
         /**
          * @type {StreamerClient}
@@ -352,6 +355,7 @@ export class GamepadHelper extends EventTarget {
         this.onGamepadConnectedBinded = this.onGamepadConnected.bind(this);
         this.onGamepadDisconnectedBinded = this.onGamepadDisconnected.bind(this);
         this.gamepadMetadata = {};
+        this.requestAnimationTickBinded = this.requestAnimationTick.bind(this);
     }
 
     /**
@@ -365,6 +369,8 @@ export class GamepadHelper extends EventTarget {
             gamepad: event.gamepad,
             id: event.gamepad.id,
             syncing: false,
+            lastTick: 0,
+            lastSent: {}
         };
         this.gamepads.push(event.gamepad);
     }
@@ -376,6 +382,31 @@ export class GamepadHelper extends EventTarget {
         this.gamepadMetadata[gamepad.index].syncing = true;
         // send to server
 
+    }
+
+    guessVendor(gamepad){
+        if(gamepad.id.includes("Microsoft") || gamepad.id.toLowerCase().includes("xbox")){
+            return "xbox";
+        }
+        return "unknown";
+    }
+
+    tick(){
+        this.gamepads.forEach((gamepad) => {
+            let metadata = this.gamepadMetadata[gamepad.index];
+            if(gamepad.timestamp != gamepad.timestamp){
+                metadata.lastTick = gamepad.timestamp;
+                // send state regardless
+                if(metadata.syncing){
+                    
+                }
+            }
+        });
+    }
+
+    requestAnimationTick() {
+        this.tick();
+        requestAnimationFrame(this.requestAnimationTickBinded);
     }
 
     detachFromRemote(gamepad){
@@ -413,10 +444,6 @@ export class GamepadHelper extends EventTarget {
         window.removeEventListener("gamepadconnected", this.onGamepadConnectedBinded);
         window.removeEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
         this.enabled = false;
-    }
-
-    tick(){
-
     }
 }
 
