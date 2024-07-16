@@ -3,6 +3,7 @@ import { Socket, connect, io } from "socket.io-client";
 import { getApiUrl } from "../utils/api";
 import { getJwt } from "../utils/login";
 import _ from "lodash";
+import {nanoid} from "nanoid";
 
 export const defaultRtcConfig = {
     // if more are needed
@@ -357,6 +358,7 @@ export class GamepadHelper extends EventTarget {
         this.onGamepadDisconnectedBinded = this.onGamepadDisconnected.bind(this);
         this.gamepadMetadata = {};
         this.requestAnimationTickBinded = this.requestAnimationTick.bind(this);
+        this.pendingGamepadPromiseResolves = {};
     }
 
     /**
@@ -369,7 +371,9 @@ export class GamepadHelper extends EventTarget {
         this.gamepadMetadata[event.gamepad.index] = {
             gamepad: event.gamepad,
             id: event.gamepad.id,
+            local_id: nanoid(),
             syncing: false,
+            connecting: false,
             lastTick: 0,
             lastSent: {},
             product_type: this.guessVendor(event.gamepad)
@@ -378,12 +382,21 @@ export class GamepadHelper extends EventTarget {
     }
 
     attschToRemote(gamepad){
-        if(this.gamepadMetadata[gamepad.index].syncing){
+        let metadata = this.gamepadMetadata[gamepad.index];
+        if(metadata.syncing || metadata.connecting){
             return;
         }
-        this.gamepadMetadata[gamepad.index].syncing = true;
+        metadata.connecting = true;
         // send to server
-
+        return (new Promise((resolve, reject) => {
+            this.pendingGamepadPromiseResolves[metadata.local_id] = resolve;
+            setTimeout(() => {
+                if(this.pendingGamepadPromiseResolves[metadata.local_id]){
+                    delete this.pendingGamepadPromiseResolves[metadata.local_id];
+                    reject("Host timeout reached.");
+                }
+            }, 5000);
+        }));
     }
 
     guessVendor(gamepad){
@@ -427,6 +440,7 @@ export class GamepadHelper extends EventTarget {
                 // send state regardless
                 if(metadata.syncing){
                     let serialized = this.serializeGamepad(gamepad, metadata);
+                    // TODO: optimize perf
                     if(_.isEqual(metadata.lastSent, serialized)) {
                         return;
                     }
