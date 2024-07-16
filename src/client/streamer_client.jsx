@@ -371,7 +371,8 @@ export class GamepadHelper extends EventTarget {
             id: event.gamepad.id,
             syncing: false,
             lastTick: 0,
-            lastSent: {}
+            lastSent: {},
+            product_type: this.guessVendor(event.gamepad)
         };
         this.gamepads.push(event.gamepad);
     }
@@ -397,7 +398,7 @@ export class GamepadHelper extends EventTarget {
      * @param {Gamepad} gamepad
      * @memberof GamepadHelper
      */
-    serializeGamepad(gamepad){
+    serializeGamepad(gamepad, metadata){
         return {
             id: gamepad.id,
             index: gamepad.index,
@@ -411,7 +412,8 @@ export class GamepadHelper extends EventTarget {
                 }
             }),
             mapping: gamepad.mapping,
-            connected: gamepad.connected
+            connected: gamepad.connected,
+            product_type: metadata.product_type
         }
     }
 
@@ -424,7 +426,7 @@ export class GamepadHelper extends EventTarget {
                 metadata.lastTick = gamepad.timestamp;
                 // send state regardless
                 if(metadata.syncing){
-                    let serialized = this.serializeGamepad(gamepad);
+                    let serialized = this.serializeGamepad(gamepad, metadata);
                     if(_.isEqual(metadata.lastSent, serialized)) {
                         return;
                     }
