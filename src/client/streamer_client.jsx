@@ -137,6 +137,22 @@ export class StreamerPeerConnection extends EventTarget {
 
     onDataChannelMessage(event){
         console.log("data channel message", event);
+
+        this.dispatchEvent(new CustomEvent("data_channel_message", {
+            detail: {
+                channel: event.channel,
+                data: event.data
+            }
+        }));
+
+        if(this.parent){
+            this.parent.dispatchEvent(new CustomEvent("data_channel_message", {
+                detail: {
+                    channel: event.channel,
+                    data: event.data
+                }
+            }));
+        }
     }
 
     onDataChannelError(event){
@@ -359,6 +375,7 @@ export class GamepadHelper extends EventTarget {
         this.gamepadMetadata = {};
         this.requestAnimationTickBinded = this.requestAnimationTick.bind(this);
         this.pendingGamepadPromiseResolves = {};
+        this.onDataChannelMessageBinded = this.onDataChannelMessage.bind(this);
     }
 
     /**
@@ -488,11 +505,22 @@ export class GamepadHelper extends EventTarget {
         return this.gamepads;
     }
 
+    onDataChannelMessage(event){
+        let {channel, data} = event.detail;
+        console.log(data);
+    }
+
     enable(){
         if(this.enabled) return;
         console.log("enabling gamepads");
         window.addEventListener("gamepadconnected", this.onGamepadConnectedBinded);
         window.addEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
+        this.client.addEventListener("data_channel_message", this.onDataChannelMessageBinded);
+        // TODO: impl server side
+        this.client.sendReliable({
+            type: "perms_check"
+        });
+        
     }
 
     disable(){
@@ -500,6 +528,7 @@ export class GamepadHelper extends EventTarget {
         console.log("disabling gamepads");
         window.removeEventListener("gamepadconnected", this.onGamepadConnectedBinded);
         window.removeEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
+        this.client.removeEventListener("data_channel_message", this.onDataChannelMessageBinded);
         this.enabled = false;
     }
 }
