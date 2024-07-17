@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "sonner"
 
 import React from "react"
 
+import { unfuck } from "../../lib/utils"
+
 const Toaster = ({
   ...props
 }) => {
@@ -10,12 +12,12 @@ const Toaster = ({
 
   return (
     (<Sonner
-      theme={theme}
+      theme={unfuck(theme)}
       className="toaster group"
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+          "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
           description: "group-[.toast]:text-muted-foreground",
           actionButton:
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",

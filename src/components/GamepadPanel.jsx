@@ -14,6 +14,34 @@ import {
 } from "../@/components/ui/table"
 
 export function GamepadPanel(props) {
+
+  let client = streamerClientManager.allocate(props.sid);
+
+  const [gamepads, setGamepads] = React.useState([]);
+
+  function onGamepadMutation(){
+    let gamepadHelper = client.gamepads;
+    let gamepadData = [];
+    for(let gamepad of gamepadHelper.gamepads){
+      let metadata = gamepadHelper.gamepadMetadata[gamepad.index];
+      console.log("gamepad",gamepad, metadata);
+      gamepadData.push({
+        ...metadata,
+        index: gamepad.index,
+      });
+    }
+    setGamepads(gamepadData);
+  }
+
+  React.useEffect(() => {
+
+    client.addEventListener("gamepadMutation", onGamepadMutation);
+
+    return () => {
+      client.removeEventListener("gamepadMutation", onGamepadMutation);
+    }
+  });
+
   let sid = props.sid;
   return (
     <Table>
@@ -33,6 +61,18 @@ export function GamepadPanel(props) {
           <TableCell>Xbox 360</TableCell>
           <TableCell className="text-right">TODO</TableCell>
         </TableRow>
+        {
+          gamepads.map((gamepad) => {
+            return (
+              <TableRow key={gamepad.index}>
+                <TableCell className="font-medium">{gamepad.index}</TableCell>
+                <TableCell>{gamepad.id}</TableCell>
+                <TableCell>{gamepad.product_type}</TableCell>
+                <TableCell className="text-right">TODO</TableCell>
+              </TableRow>
+            )
+          })
+        }
       </TableBody>
     </Table>
   );
