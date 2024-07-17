@@ -4,6 +4,7 @@ import { getApiUrl } from "../utils/api";
 import { getJwt } from "../utils/login";
 import _ from "lodash";
 import {nanoid} from "nanoid";
+import { Database } from "lucide-react";
 
 export const defaultRtcConfig = {
     // if more are needed
@@ -488,6 +489,8 @@ export class GamepadHelper extends EventTarget {
             return;
         }
         this.gamepadMetadata[gamepad.index].syncing = false;
+        this.dispatchEvent(new CustomEvent("gamepadMutation"));
+        this.dispatchEvent(new CustomEvent("gamepadRemoteMutation"));
     }
 
     /**
@@ -502,6 +505,7 @@ export class GamepadHelper extends EventTarget {
         delete this.gamepadMetadata[event.gamepad.index];
         // remove from gamepads
         this.gamepads = this.gamepads.filter((gamepad) => gamepad.index != event.gamepad.index);
+        this.dispatchEvent(new CustomEvent("gamepadMutation"));
     }
 
     // literally reinvented the navigator one but whatever
@@ -514,11 +518,26 @@ export class GamepadHelper extends EventTarget {
         console.log("dc message", data);
         if(channel.label == "reliable"){
             if(data.type == "add_gamepad_reply") {
-                let metadata = this.gamepadMetadata[data.local_id];
-                if(metadata){
-
+                if(data.success){
+                    let [index,metadata] = Object.entries(this.gamepadMetadata).find((pair) => pair[1].local_id == data.local_id);
+                    let gamepad = this.gamepads[index];
+                    console.log("gamepad added", data, gamepad);
+                    if(metadata){
+                        metadata.syncing = true;
+                        metadata.remote_id = data.remote_id;
+                        this.pendingGamepadPromiseResolves[metadata.local_id](data);
+                        this.dispatchEvent(new CustomEvent("gamepadMutation"));
+                        this.dispatchEvent(new CustomEvent("gamepadRemoteMutation"));
+                    }else{
+                        console.log("accepted currently nonexistent gamepad", data);
+                    }
                 }else{
-                    console.log("accepted currently nonexistent gamepad", data);
+                    console.warn("gamepad add failed", data);
+                    this.dispatchEvent(new CustomEvent("gamepadRemoteError", {
+                        detail: {
+                            data: data
+                        }
+                    }));
                 }
             }
         }else if(!channel.label){
