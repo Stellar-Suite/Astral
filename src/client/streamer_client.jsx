@@ -398,6 +398,7 @@ export class GamepadHelper extends EventTarget {
             product_type: this.guessVendor(event.gamepad)
         };
         this.gamepads.push(event.gamepad);
+        this.dispatchEvent(new CustomEvent("gamepadMutation"));
     }
 
     attschToRemote(gamepad){

@@ -35,10 +35,10 @@ export function GamepadPanel(props) {
 
   React.useEffect(() => {
 
-    client.addEventListener("gamepadMutation", onGamepadMutation);
+    client.gamepads.addEventListener("gamepadMutation", onGamepadMutation);
 
     return () => {
-      client.removeEventListener("gamepadMutation", onGamepadMutation);
+      client.gamepads.removeEventListener("gamepadMutation", onGamepadMutation);
     }
   });
 
