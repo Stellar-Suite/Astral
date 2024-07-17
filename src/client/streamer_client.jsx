@@ -497,6 +497,10 @@ export class GamepadHelper extends EventTarget {
      */
     onGamepadDisconnected(event){
         console.log("gamepad disconnected", event);
+        // delete metadata
+        // TODO: does index still exist?
+        delete this.gamepadMetadata[event.gamepad.index];
+        // remove from gamepads
         this.gamepads = this.gamepads.filter((gamepad) => gamepad.index != event.gamepad.index);
     }
 
@@ -507,7 +511,19 @@ export class GamepadHelper extends EventTarget {
 
     onDataChannelMessage(event){
         let {channel, data} = event.detail;
-        console.log(data);
+        console.log("dc message", data);
+        if(channel.label == "reliable"){
+            if(data.type == "add_gamepad_reply") {
+                let metadata = this.gamepadMetadata[data.local_id];
+                if(metadata){
+
+                }else{
+                    console.log("accepted currently nonexistent gamepad", data);
+                }
+            }
+        }else if(!channel.label){
+            console.warn("Unknown channel label", channel);
+        }
     }
 
     enable(){
