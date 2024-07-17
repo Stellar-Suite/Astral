@@ -25,6 +25,7 @@ export class StreamerPeerConnection extends EventTarget {
         this.sid = sid;
         this.options = options;
         this.type = type;
+        this.dataChannels = {};
     }
 
     socketConnectedOnce = false;
@@ -577,7 +578,7 @@ export class StreamerClient extends EventTarget {
         this.audio = new StreamerPeerConnection(sid, options, "audio");
         this.video.parent = this;
         this.audio.parent = this;
-        this.gamepads = new GamepadHelper();
+        this.gamepads = new GamepadHelper(this);
         if(!this.options.disableGamepads){
             this.gamepads.enable();
         }

@@ -16,6 +16,7 @@ import RemoteMedia from "../components/RemoteMedia";
 import socket from "../utils/socket";
 import { InputFrame } from "../components/InputFrame";
 import { Settings } from "../components/Settings";
+import { GamepadPanel } from "../components/GamepadPanel";
 
 function useQuery() {
   const search = useLocation().search;
@@ -217,6 +218,7 @@ const Player = () => {
                             <Settings className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 w-full mb-4">Settings</Settings>
                             <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
                             <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
+                            <GamepadPanel sid={session.sid} />
                             <pre className="max-h-64 overflow-y-scroll">
                               {reportText}
                             </pre>
