@@ -459,7 +459,7 @@ export class GamepadHelper extends EventTarget {
             remote_id: metadata.remote_id,
             index: gamepad.index,
             timestamp: gamepad.timestamp,
-            axes: gamepad.axes,
+            axes: gamepad.axes.slice(),
             buttons: gamepad.buttons.map((button) => {
                 return {
                     pressed: button.pressed,
@@ -484,7 +484,7 @@ export class GamepadHelper extends EventTarget {
         return {
             remote_id: metadata.remote_id,
             timestamp: gamepad.timestamp,
-            axes: gamepad.axes,
+            axes: gamepad.axes.slice(),
             buttons: gamepad.buttons.map((button) => {
                 return button.pressed;
             }),
@@ -495,43 +495,48 @@ export class GamepadHelper extends EventTarget {
     // TODO: ask server to generate ids
 
     getLatestGamepads(){
+        // navigator gamepad prepopulates with [null,null,null,null] which breaks our forEach.
         if(navigator.getGamepads){
-            return navigator.getGamepads();
+            return navigator.getGamepads().filter((gamepad) => gamepad && gamepad.id);
         }
         if(navigator["webkitGetGamepads"]){
-            return navigator["webkitGetGamepads"]();
+            return navigator["webkitGetGamepads"]().filter((gamepad) => gamepad && gamepad.id);
         }
         return [];
     }
 
     tick(){
         // check each gamepad for changes and send to server if needed
-        this.getLatestGamepads().forEach((gamepad) => {
-            console.log("tick", gamepad);
+        this.gamepads = this.getLatestGamepads();
+        this.gamepads.forEach((gamepad) => {
+            // console.log("tick", gamepad);
             let metadata = this.gamepadMetadata[gamepad.index];
-            if(gamepad.timestamp != gamepad.timestamp){
+            // console.log(gamepad.timestamp, metadata.lastTick, metadata.syncing);
+            if(gamepad.timestamp != metadata.lastTick){
+                // console.log("Timestamp changed");
                 metadata.lastTick = gamepad.timestamp;
                 // send state regardless
                 if(metadata.syncing){
                     let serialized = this.serializeGamepad(gamepad, metadata);
                     // TODO: optimize perf?
                     if(_.isEqual(metadata.lastSent, serialized)) {
+                        // console.log("Not different enough");
                         return;
                     }
                     metadata.lastSent = serialized;
                     this.client.sendUnreliable({
-                        "gamepad_update": this.serializeGamepadForServer(gamepad, metadata)
+                        "update_gamepad": this.serializeGamepadForServer(gamepad, metadata)
                     });
                 }
             }
         });
     }
 
-    requestAnimationTick() {
+    requestAnimationTick(instant = true) {
         if(!this.enabled){
             return;
         }
-        this.tick();
+        if(instant) this.tick();
         if(!this.enabled){
             return;
         }
@@ -586,12 +591,13 @@ export class GamepadHelper extends EventTarget {
                 if(message_data.success){
                     let [index,metadata] = Object.entries(this.gamepadMetadata).find((pair) => pair[1].local_id == message_data.local_id);
                     let gamepad = this.gamepads[index];
-                    console.log("gamepad added", message_data, gamepad);
+                    console.log("gamepad added", message_data, gamepad, this.gamepadMetadata);
                     if(metadata){
                         metadata.syncing = true;
                         metadata.connecting = false;
                         metadata.remote_id = message_data.remote_id;
                         this.pendingGamepadPromiseResolves[metadata.local_id](message_data);
+                        delete this.pendingGamepadPromiseResolves[metadata.local_id];
                         this.dispatchEvent(new CustomEvent("gamepadMutation"));
                         this.dispatchEvent(new CustomEvent("gamepadRemoteMutation"));
                     }else{
@@ -614,7 +620,7 @@ export class GamepadHelper extends EventTarget {
     enable(){
         if(this.enabled) return;
         this.enabled = true;
-        this.requestAnimationTick();
+        this.requestAnimationTick(false);
         console.log("enabling gamepads");
         window.addEventListener("gamepadconnected", this.onGamepadConnectedBinded);
         window.addEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
