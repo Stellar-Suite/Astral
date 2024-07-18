@@ -132,17 +132,24 @@ export class StreamerPeerConnection extends EventTarget {
      onDataChannel(event){
         console.log("data channel created", event);
         this.dataChannels[event.channel.label] = event.channel;
-        event.channel.addEventListener("message", this.onDataChannelMessage.bind(this));
+        const channel = event.channel;
+        event.channel.addEventListener("message", (event) => {
+            this.onDataChannelMessage(event, channel);
+        });
         event.channel.addEventListener("open", this.onDataChannelOpen.bind(this));
         event.channel.addEventListener("error", this.onDataChannelError.bind(this));
     }
 
-    onDataChannelMessage(event){
+    /**
+     *
+     * @param {MessageEvent} event
+     * @memberof StreamerPeerConnection
+     */
+    onDataChannelMessage(event, channel){
         console.log("data channel message", event);
-
         this.dispatchEvent(new CustomEvent("data_channel_message", {
             detail: {
-                channel: event.channel,
+                channel: channel,
                 data: event.data
             }
         }));
@@ -150,7 +157,7 @@ export class StreamerPeerConnection extends EventTarget {
         if(this.parent){
             this.parent.dispatchEvent(new CustomEvent("data_channel_message", {
                 detail: {
-                    channel: event.channel,
+                    channel: channel,
                     data: event.data
                 }
             }));
