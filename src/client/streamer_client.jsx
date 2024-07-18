@@ -494,9 +494,19 @@ export class GamepadHelper extends EventTarget {
 
     // TODO: ask server to generate ids
 
+    getLatestGamepads(){
+        if(navigator.getGamepads){
+            return navigator.getGamepads();
+        }
+        if(navigator["webkitGetGamepads"]){
+            return navigator["webkitGetGamepads"]();
+        }
+        return [];
+    }
+
     tick(){
         // check each gamepad for changes and send to server if needed
-        this.gamepads.forEach((gamepad) => {
+        this.getLatestGamepads().forEach((gamepad) => {
             let metadata = this.gamepadMetadata[gamepad.index];
             if(gamepad.timestamp != gamepad.timestamp){
                 metadata.lastTick = gamepad.timestamp;
