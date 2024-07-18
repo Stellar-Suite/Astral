@@ -63,6 +63,10 @@ export function GamepadPanel(props) {
     onGamepadMutation();
   }
 
+  async function onDetach(gamepadDescriptor){
+    toast("not implemented");
+  }
+
   
   return (
     <Table>
@@ -91,7 +95,7 @@ export function GamepadPanel(props) {
                 <TableCell>{gamepad.product_type}</TableCell>
                 <TableCell className="text-right">
                   {
-                    gamepad.syncing ? <Button variant="destructive" className="w-full">Detach</Button> : <Button variant="primary" className="w-full" disabled={gamepad.connecting} onClick={() => onAttach(gamepad)}>{gamepad.connecting ? "Attaching...": "Attach"}</Button>
+                    gamepad.syncing ? <Button variant="destructive" className="w-full" onClick={() => onDetach(gamepad)}>Detach</Button> : <Button variant="primary" className="w-full" disabled={gamepad.connecting} onClick={() => onAttach(gamepad)}>{gamepad.connecting ? "Attaching...": "Attach"}</Button>
                   }
                 </TableCell>
               </TableRow>
