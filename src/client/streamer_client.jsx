@@ -408,9 +408,10 @@ export class GamepadHelper extends EventTarget {
         }
         metadata.connecting = true;
         this.client.sendReliable({
-            type: "add_gamepad",
-            local_id: metadata.local_id,
-            product_type: metadata.product_type
+            "add_gamepad": {
+                local_id: metadata.local_id,
+                product_type: metadata.product_type
+            }
         });
         // send to server
         return (new Promise((resolve, reject) => {
