@@ -507,6 +507,7 @@ export class GamepadHelper extends EventTarget {
     tick(){
         // check each gamepad for changes and send to server if needed
         this.getLatestGamepads().forEach((gamepad) => {
+            console.log("tick", gamepad);
             let metadata = this.gamepadMetadata[gamepad.index];
             if(gamepad.timestamp != gamepad.timestamp){
                 metadata.lastTick = gamepad.timestamp;
@@ -612,6 +613,7 @@ export class GamepadHelper extends EventTarget {
 
     enable(){
         if(this.enabled) return;
+        this.enabled = true;
         this.requestAnimationTick();
         console.log("enabling gamepads");
         window.addEventListener("gamepadconnected", this.onGamepadConnectedBinded);
