@@ -517,7 +517,13 @@ export class GamepadHelper extends EventTarget {
     }
 
     requestAnimationTick() {
+        if(!this.enabled){
+            return;
+        }
         this.tick();
+        if(!this.enabled){
+            return;
+        }
         requestAnimationFrame(this.requestAnimationTickBinded);
     }
 
@@ -596,6 +602,7 @@ export class GamepadHelper extends EventTarget {
 
     enable(){
         if(this.enabled) return;
+        this.requestAnimationTick();
         console.log("enabling gamepads");
         window.addEventListener("gamepadconnected", this.onGamepadConnectedBinded);
         window.addEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
