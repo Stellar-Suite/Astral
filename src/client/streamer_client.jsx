@@ -408,8 +408,9 @@ export class GamepadHelper extends EventTarget {
         this.dispatchEvent(new CustomEvent("gamepadMutation"));
     }
 
-    attachToRemote(gamepad){
-        let metadata = this.gamepadMetadata[gamepad.index];
+    attachToRemote(gamepadDesc){
+        let metadata = this.gamepadMetadata[gamepadDesc.index];
+        let gamepad = this.gamepads.find((gamepad) => gamepadDesc.index == gamepad.index);
         if(metadata.syncing || metadata.connecting){
             return;
         }
@@ -417,7 +418,10 @@ export class GamepadHelper extends EventTarget {
         this.client.sendReliable({
             "add_gamepad": {
                 local_id: metadata.local_id,
-                product_type: metadata.product_type
+                product_type: metadata.product_type,
+                hats: 0,
+                axes: gamepad.axes.length,
+                buttons: gamepad.buttons.length
             }
         });
         // send to server
