@@ -456,6 +456,7 @@ export class GamepadHelper extends EventTarget {
     serializeGamepad(gamepad, metadata){
         return {
             id: gamepad.id,
+            remote_id: metadata.remote_id,
             index: gamepad.index,
             timestamp: gamepad.timestamp,
             axes: gamepad.axes,
@@ -472,9 +473,29 @@ export class GamepadHelper extends EventTarget {
         }
     }
 
+    /**
+     *
+     * @param {Gamepad} gamepad
+     * @param {*} metadata
+     * @return {*} 
+     * @memberof GamepadHelper
+     */
+    serializeGamepadForServer(gamepad, metadata){
+        return {
+            remote_id: metadata.remote_id,
+            timestamp: gamepad.timestamp,
+            axes: gamepad.axes,
+            buttons: gamepad.buttons.map((button) => {
+                return button.pressed;
+            }),
+            hats: []
+        }
+    }
+
     // TODO: ask server to generate ids
 
     tick(){
+        // check each gamepad for changes and send to server if needed
         this.gamepads.forEach((gamepad) => {
             let metadata = this.gamepadMetadata[gamepad.index];
             if(gamepad.timestamp != gamepad.timestamp){
@@ -482,15 +503,13 @@ export class GamepadHelper extends EventTarget {
                 // send state regardless
                 if(metadata.syncing){
                     let serialized = this.serializeGamepad(gamepad, metadata);
-                    // TODO: optimize perf
+                    // TODO: optimize perf?
                     if(_.isEqual(metadata.lastSent, serialized)) {
                         return;
                     }
                     metadata.lastSent = serialized;
                     this.client.sendUnreliable({
-                        "gamepad_update": {
-                            gamepad: serialized
-                        }
+                        "gamepad_update": this.serializeGamepadForServer(gamepad, metadata)
                     });
                 }
             }
