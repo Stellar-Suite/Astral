@@ -4,6 +4,8 @@ import React from "react";
 
 import { Gamepad2 } from 'lucide-react';
 
+import { toast } from "sonner"
+
 // https://ui.shadcn.com/docs/components/table
 import {
   Table,
@@ -48,9 +50,17 @@ export function GamepadPanel(props) {
     }
   });
 
-  function onAttach(gamepadDescriptor){
-    client.gamepads.attachToRemote(gamepadDescriptor);
-    onGamepadMutation(); // block the button now
+  async function onAttach(gamepadDescriptor){
+    try{
+      const attachPromise = client.gamepads.attachToRemote(gamepadDescriptor);
+      onGamepadMutation(); // block the button now
+      toast(`Attaching gamepad {gamepadDescriptor.index}...`);
+      await attachPromise;
+      toast(`Gamepad {gamepadDescriptor.index} attached.`);
+    }catch(ex){
+      toast(`Failed to attach gamepad {gamepadDescriptor.index}: ${ex}`);
+    }
+    onGamepadMutation();
   }
 
   

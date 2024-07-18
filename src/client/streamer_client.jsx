@@ -532,6 +532,12 @@ export class GamepadHelper extends EventTarget {
     onDataChannelMessage(event){
         let {channel, data} = event.detail;
         console.log("dc message", data);
+        if(typeof data == "string"){
+            data = JSON.parse(data);
+        }
+        if(typeof data != "object"){
+            return;
+        }
         // handle externally typed enum
         const message_type = Object.keys(data)[0];
         const message_data = data[message_type];
