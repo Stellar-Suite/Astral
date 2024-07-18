@@ -401,7 +401,7 @@ export class GamepadHelper extends EventTarget {
         this.dispatchEvent(new CustomEvent("gamepadMutation"));
     }
 
-    attschToRemote(gamepad){
+    attachToRemote(gamepad){
         let metadata = this.gamepadMetadata[gamepad.index];
         if(metadata.syncing || metadata.connecting){
             return;
@@ -417,7 +417,10 @@ export class GamepadHelper extends EventTarget {
             this.pendingGamepadPromiseResolves[metadata.local_id] = resolve;
             setTimeout(() => {
                 if(this.pendingGamepadPromiseResolves[metadata.local_id]){
+                    console.log(metadata.local_id, " attach timeout reached.");
                     delete this.pendingGamepadPromiseResolves[metadata.local_id];
+                    metadata.connecting = false;
+                    metadata.syncing = false;
                     reject("Host timeout reached.");
                 }
             }, 5000);

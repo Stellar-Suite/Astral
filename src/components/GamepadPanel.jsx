@@ -19,7 +19,9 @@ import { Button } from "../@/components/ui/button";
 
 export function GamepadPanel(props) {
 
-  let client = streamerClientManager.allocate(props.sid, {}, false);
+  const sid = props.sid;
+
+  let client = streamerClientManager.allocate(sid, {}, false);
 
   const [gamepads, setGamepads] = React.useState([]);
 
@@ -46,7 +48,12 @@ export function GamepadPanel(props) {
     }
   });
 
-  let sid = props.sid;
+  function onAttach(gamepadDescriptor){
+    client.gamepads.attachToRemote(gamepadDescriptor);
+    onGamepadMutation(); // block the button now
+  }
+
+  
   return (
     <Table>
       <TableCaption>Gamepad configuration.</TableCaption>
@@ -70,11 +77,11 @@ export function GamepadPanel(props) {
             return (
               <TableRow key={gamepad.index}>
                 <TableCell className="font-medium"><Gamepad2 className="inline-block" /> {gamepad.index}</TableCell>
-                <TableCell>{gamepad.id}</TableCell>
+                <TableCell className="text-ellipsis text-bold whitespace-nowrap overflow-hidden max-w-20">{gamepad.id}</TableCell>
                 <TableCell>{gamepad.product_type}</TableCell>
                 <TableCell className="text-right">
                   {
-                    gamepad.syncing ? <Button variant="destructive" className="w-full">Detach</Button> : <Button variant="primary" className="w-full" disabled={gamepad.connecting}>{gamepad.connecting ? "Attaching...": "Attach"}</Button>
+                    gamepad.syncing ? <Button variant="destructive" className="w-full">Detach</Button> : <Button variant="primary" className="w-full" disabled={gamepad.connecting} onClick={() => onAttach(gamepad)}>{gamepad.connecting ? "Attaching...": "Attach"}</Button>
                   }
                 </TableCell>
               </TableRow>
