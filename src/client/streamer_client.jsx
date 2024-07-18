@@ -476,8 +476,9 @@ export class GamepadHelper extends EventTarget {
                     }
                     metadata.lastSent = serialized;
                     this.client.sendUnreliable({
-                        gamepad: serialized,
-                        type: "gamepad_update"
+                        "gamepad_update": {
+                            gamepad: serialized
+                        }
                     });
                 }
             }
@@ -523,21 +524,24 @@ export class GamepadHelper extends EventTarget {
     onDataChannelMessage(event){
         let {channel, data} = event.detail;
         console.log("dc message", data);
+        // handle externally typed enum
+        const message_type = Object.keys(data)[0];
+        const message_data = data[message_type];
         if(channel.label == "reliable"){
-            if(data.type == "add_gamepad_reply") {
-                if(data.success){
-                    let [index,metadata] = Object.entries(this.gamepadMetadata).find((pair) => pair[1].local_id == data.local_id);
+            if(message_type == "add_gamepad_reply") {
+                if(message_data.success){
+                    let [index,metadata] = Object.entries(this.gamepadMetadata).find((pair) => pair[1].local_id == message_data.local_id);
                     let gamepad = this.gamepads[index];
-                    console.log("gamepad added", data, gamepad);
+                    console.log("gamepad added", message_data, gamepad);
                     if(metadata){
                         metadata.syncing = true;
                         metadata.connecting = false;
-                        metadata.remote_id = data.remote_id;
-                        this.pendingGamepadPromiseResolves[metadata.local_id](data);
+                        metadata.remote_id = message_data.remote_id;
+                        this.pendingGamepadPromiseResolves[metadata.local_id](message_data);
                         this.dispatchEvent(new CustomEvent("gamepadMutation"));
                         this.dispatchEvent(new CustomEvent("gamepadRemoteMutation"));
                     }else{
-                        console.log("accepted currently nonexistent gamepad", data);
+                        console.log("accepted currently nonexistent gamepad", message_data);
                     }
                 }else{
                     console.warn("gamepad add failed", data);
@@ -560,9 +564,9 @@ export class GamepadHelper extends EventTarget {
         window.addEventListener("gamepaddisconnected", this.onGamepadDisconnectedBinded);
         this.client.addEventListener("data_channel_message", this.onDataChannelMessageBinded);
         // TODO: impl server side
-        this.client.sendReliable({
-            type: "perms_check"
-        });
+        /*this.client.sendReliable({
+            "perms_check": {}
+        });*/
         
     }
 

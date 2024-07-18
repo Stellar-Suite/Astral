@@ -17,12 +17,13 @@ export function InputFrame(props) {
    */
   function onKeyStateChange(ev, state){
     console.log("key state change send",client.sendReliable({
-      type: "keychange",
-      key: ev.key,
-      code: ev.code,
-      composition: ev.isComposing || false,
-      state: state,
-      timestamp: Date.now()
+      "keychange": {
+        key: ev.key,
+        code: ev.code,
+        composition: ev.isComposing || false,
+        state: state,
+        timestamp: Date.now()
+      }
     }));
   }
 
@@ -70,19 +71,21 @@ export function InputFrame(props) {
       // TODO: if it's locked start sending relative
       if(isLocked){
         client.sendUnreliable({
-          type: "mouse_rel",
-          x: Math.floor(ev.movementX),
-          y: Math.floor(ev.movementY),
-          timestamp: Date.now(),
-          absolute_x: Math.floor(x),
-          absolute_y: Math.floor(y),
+          "mouse_rel": {
+            x: Math.floor(ev.movementX),
+            y: Math.floor(ev.movementY),
+            timestamp: Date.now(),
+            absolute_x: Math.floor(x),
+            absolute_y: Math.floor(y)
+          }
         });
       }else{
         client.sendUnreliable({
-          type: "mouse_abs",
-          x: Math.floor(x),
-          y: Math.floor(y),
-          timestamp: Date.now(),
+          "mouse_abs": {
+            x: Math.floor(x),
+            y: Math.floor(y),
+            timestamp: Date.now()
+          }
         });
       }
 
@@ -96,11 +99,12 @@ export function InputFrame(props) {
   function onMouseButton(ev, state){
     console.log("mouse button",ev, state);
     client.sendReliable({
-      type: "mouse_btn",
-      change: 1 << ev.button,
-      buttons: ev.buttons,
-      state: state,
-      timestamp: Date.now(),
+      "mouse_btn": {
+        change: 1 << ev.button,
+        buttons: ev.buttons,
+        state: state,
+        timestamp: Date.now()
+      }
     });
   }
 
