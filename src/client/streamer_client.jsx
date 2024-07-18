@@ -490,7 +490,9 @@ export class GamepadHelper extends EventTarget {
         if(!this.gamepadMetadata[gamepad.index].syncing){
             return;
         }
+        // TODO: tell remote
         this.gamepadMetadata[gamepad.index].syncing = false;
+        this.gamepadMetadata[gamepad.index].connecting = false;
         this.dispatchEvent(new CustomEvent("gamepadMutation"));
         this.dispatchEvent(new CustomEvent("gamepadRemoteMutation"));
     }
@@ -526,6 +528,7 @@ export class GamepadHelper extends EventTarget {
                     console.log("gamepad added", data, gamepad);
                     if(metadata){
                         metadata.syncing = true;
+                        metadata.connecting = false;
                         metadata.remote_id = data.remote_id;
                         this.pendingGamepadPromiseResolves[metadata.local_id](data);
                         this.dispatchEvent(new CustomEvent("gamepadMutation"));
@@ -630,13 +633,14 @@ export class StreamerClientManager extends EventTarget {
      * @return {StreamerClient} 
      * @memberof StreamerClientManager
      */
-    allocate(sid, options) {
+    allocate(sid, options, refcount = true) {
         if(this.clients.has(sid)){
+            if(refcount) this.clientRefCounter.set(sid, this.clientRefCounter.get(sid) + 1);
             return this.clients.get(sid);
         }
         let client = new StreamerClient(sid, options);
         this.clients.set(sid, client);
-        this.clientRefCounter.set(sid, 1);
+        this.clientRefCounter.set(sid, refcount ? 1 : 0);
         client.start();
         return client;
     }

@@ -2,6 +2,8 @@ import { unfuck } from "../@/lib/utils";
 import { streamerClientManager } from "../client/streamer_client";
 import React from "react";
 
+import { Gamepad2 } from 'lucide-react';
+
 // https://ui.shadcn.com/docs/components/table
 import {
   Table,
@@ -13,9 +15,11 @@ import {
   TableRow,
 } from "../@/components/ui/table"
 
+import { Button } from "../@/components/ui/button";
+
 export function GamepadPanel(props) {
 
-  let client = streamerClientManager.allocate(props.sid);
+  let client = streamerClientManager.allocate(props.sid, {}, false);
 
   const [gamepads, setGamepads] = React.useState([]);
 
@@ -65,10 +69,14 @@ export function GamepadPanel(props) {
           gamepads.map((gamepad) => {
             return (
               <TableRow key={gamepad.index}>
-                <TableCell className="font-medium">{gamepad.index}</TableCell>
+                <TableCell className="font-medium"><Gamepad2 className="inline-block" /> {gamepad.index}</TableCell>
                 <TableCell>{gamepad.id}</TableCell>
                 <TableCell>{gamepad.product_type}</TableCell>
-                <TableCell className="text-right">TODO</TableCell>
+                <TableCell className="text-right">
+                  {
+                    gamepad.syncing ? <Button variant="destructive" className="w-full">Detach</Button> : <Button variant="primary" className="w-full" disabled={gamepad.connecting}>{gamepad.connecting ? "Attaching...": "Attach"}</Button>
+                  }
+                </TableCell>
               </TableRow>
             )
           })

@@ -5,7 +5,7 @@ import React from "react";
 export function InputFrame(props) {
   let extraClasses = props.className || "";
   
-  let client = streamerClientManager.allocate(props.sid, props.options || {});
+  let client = streamerClientManager.allocate(props.sid, props.options || {}, false);
 
   let selfRef = React.useRef(null);
   
