@@ -481,10 +481,15 @@ export class GamepadHelper extends EventTarget {
      * @memberof GamepadHelper
      */
     serializeGamepadForServer(gamepad, metadata){
+        let axes = gamepad.axes.slice();
+        if(gamepad.buttons.length > 7 && axes.length < 4){
+            // aritifcally add L2 and R2 triggers
+            axes.push(gamepad.buttons[6].value, gamepad.buttons[7].value);
+        }
         return {
             remote_id: metadata.remote_id,
             timestamp: gamepad.timestamp,
-            axes: gamepad.axes.slice(),
+            axes: axes,
             buttons: gamepad.buttons.map((button) => {
                 return button.pressed;
             }),
