@@ -8,6 +8,8 @@ const Dialog = DialogPrimitive.Root
 
 const DialogTrigger = DialogPrimitive.Trigger
 
+const DialogTriggerDetyped = unfuck(DialogPrimitive.Trigger)
+
 const DialogPortal = DialogPrimitive.Portal
 
 const DialogClose = DialogPrimitive.Close
@@ -91,4 +93,5 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  DialogTriggerDetyped,
 }
