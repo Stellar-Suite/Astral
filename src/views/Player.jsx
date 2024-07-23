@@ -161,8 +161,8 @@ const Player = () => {
   if (session) {
     let backgroundUrl = new URL(session.appSpecs.background, getApiUrl()).href;
 
-    const bind = unfuck(useDrag(({movement, velocity, active, cancel}) => {
-      setDebugText(JSON.stringify(movement) + " " + JSON.stringify(velocity));
+    const bind = unfuck(useDrag(({movement, velocity, active, cancel, down}) => {
+      setDebugText(JSON.stringify(movement) + " " + JSON.stringify(velocity) + " " + down);
       if(active && movement[0] < window.innerWidth / 2){
         document.title = JSON.stringify(movement) + " " + JSON.stringify(velocity);
         console.log("dragging canceled");
@@ -170,6 +170,65 @@ const Player = () => {
       }
       console.log(movement);
     }));
+
+    const innerComponent = (session && session.ready) ? <>
+      <div className="h-full w-full m-0 touch-none" key = "player">
+        <ResizablePanelGroup direction="horizontal" className="">
+          <ResizablePanel defaultSize={80} minSize={10}>
+            <InputFrame sid={session.sid} mouse mousebutton>
+              <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
+            </InputFrame>
+          </ResizablePanel>
+          <ResizableHandle withHandle={true} className="" />
+          <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={0} minSize={10} className="touch-pan-y">
+            <Tabs defaultValue="session" className="w-full p-4">
+              <TabsList className = "w-full">
+                <TabsTrigger value="session">Session</TabsTrigger>
+                <TabsTrigger value="social">Social</TabsTrigger>
+              </TabsList>
+              <TabsContent value="session" className="p-4">
+                <Settings className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 w-full mb-4">Settings</Settings>
+                <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
+                <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
+                <GamepadPanel sid={session.sid} />
+                <pre className="max-h-64 overflow-y-scroll">
+                {debugText}
+                {reportText}
+                </pre>
+              </TabsContent>
+              <TabsContent value="social"  className="p-4">
+              <Button variant = "primary" onClick={console.log} className="w-full mb-4">Share Session</Button>
+              </TabsContent>
+            </Tabs>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+    </>:<>
+      <div className="loading h-full w-full px-12 pt-12 pb-9 lg:px-24 lg:pt-24 lg:pb-18" key="loading">
+        <div
+          className="grid grid-cols-4 gap-8 h-5/6 p-8"
+          aria-busy="true"
+          aria-describedby="loader"
+        >
+          <div className="col-span-4 lg:col-span-2 bg-background-lighter">
+            <Term channel={sid + ":stdout"}></Term>
+          </div>
+          <div className="hidden lg:block lg:col-span-2 bg-background-lighter">
+            <Term channel={sid + ":streamer_stdout"}></Term>
+          </div>
+        </div>
+        <div
+          className="h-1/6 p-8"
+          id="loader"
+          aria-label="Starting application..."
+        >
+          <div className="bg-slate-300 relative h-2 overflow-hidden">
+            <div className="animate-loading w-1/3 min-w-w-1/3 overflow-hidden h-2 bg-lime-500 absolute"></div>
+          </div>
+          <p>{getReadyText(session)}</p>
+        </div>
+      </div>
+    </>;
 
     return (
       <React.Fragment>
@@ -184,71 +243,9 @@ const Player = () => {
             style={{
               backdropFilter: "blur(16px)",
             }}
+            {...bind()}
           >
-            {[
-              !session.ready && (
-                <>
-                  <div className="loading h-full w-full px-12 pt-12 pb-9 lg:px-24 lg:pt-24 lg:pb-18" key="loading">
-                    <div
-                      className="grid grid-cols-4 gap-8 h-5/6 p-8"
-                      aria-busy="true"
-                      aria-describedby="loader"
-                    >
-                      <div className="col-span-4 lg:col-span-2 bg-background-lighter">
-                        <Term channel={sid + ":stdout"}></Term>
-                      </div>
-                      <div className="hidden lg:block lg:col-span-2 bg-background-lighter">
-                        <Term channel={sid + ":streamer_stdout"}></Term>
-                      </div>
-                    </div>
-                    <div
-                      className="h-1/6 p-8"
-                      id="loader"
-                      aria-label="Starting application..."
-                    >
-                      <div className="bg-slate-300 relative h-2 overflow-hidden">
-                        <div className="animate-loading w-1/3 min-w-w-1/3 overflow-hidden h-2 bg-lime-500 absolute"></div>
-                      </div>
-                      <p>{getReadyText(session)}</p>
-                    </div>
-                  </div>
-                </>
-              ),
-              session.ready && (
-                <>
-                  <div className="h-full w-full m-0 touch-none" key = "player" {...bind()}>
-                    <ResizablePanelGroup direction="horizontal" className="">
-                      <ResizablePanel defaultSize={80} minSize={10}>
-                        <InputFrame sid={session.sid} mouse mousebutton>
-                          <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
-                        </InputFrame>
-                      </ResizablePanel>
-                      <ResizableHandle withHandle={true} className="" />
-                      <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={0} minSize={10} className="touch-pan-y">
-                        <Tabs defaultValue="session" className="w-full p-4">
-                          <TabsList className = "w-full">
-                            <TabsTrigger value="session">Session</TabsTrigger>
-                            <TabsTrigger value="social">Social</TabsTrigger>
-                          </TabsList>
-                          <TabsContent value="session" className="p-4">
-                            <Settings className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 w-full mb-4">Settings</Settings>
-                            <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
-                            <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
-                            <GamepadPanel sid={session.sid} />
-                            <pre className="max-h-64 overflow-y-scroll">
-                              {reportText}
-                            </pre>
-                          </TabsContent>
-                          <TabsContent value="social"  className="p-4">
-                          <Button variant = "primary" onClick={console.log} className="w-full mb-4">Share Session</Button>
-                          </TabsContent>
-                        </Tabs>
-                      </ResizablePanel>
-                    </ResizablePanelGroup>
-                  </div>
-                </>
-              ),
-            ]}
+            {innerComponent}
           </div>
         </Wrapper>
       </React.Fragment>
