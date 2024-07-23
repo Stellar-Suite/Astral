@@ -17,6 +17,11 @@ import socket from "../utils/socket";
 import { InputFrame } from "../components/InputFrame";
 import { Settings } from "../components/Settings";
 import { GamepadPanel } from "../components/GamepadPanel";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "../@/components/ui/resizable";
 
 function useQuery() {
   const search = useLocation().search;
@@ -198,17 +203,14 @@ const Player = () => {
               session.ready && (
                 <>
                   <div className="h-full w-full m-0" key = "player">
-                    <div
-                      className="grid grid-cols-12 gap-8 h-full p-8"
-                      aria-busy="true"
-                      aria-describedby="loader"
-                    >
-                      <div className="col-span-9 bg-background-lighter">
+                    <ResizablePanelGroup direction="horizontal" className="">
+                      <ResizablePanel defaultSize={80}>
                         <InputFrame sid={session.sid} mouse mousebutton>
                           <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
                         </InputFrame>
-                      </div>
-                      <div className="col-span-3 bg-background-lighter">
+                      </ResizablePanel>
+                      <ResizableHandle withHandle={true} className="" />
+                      <ResizablePanel defaultSize={20} collapsible={true}>
                         <Tabs defaultValue="session" className="w-full p-4">
                           <TabsList className = "w-full">
                             <TabsTrigger value="session">Session</TabsTrigger>
@@ -227,8 +229,8 @@ const Player = () => {
                           <Button variant = "primary" onClick={console.log} className="w-full mb-4">Share Session</Button>
                           </TabsContent>
                         </Tabs>
-                      </div>
-                    </div>
+                      </ResizablePanel>
+                    </ResizablePanelGroup>
                   </div>
                 </>
               ),
