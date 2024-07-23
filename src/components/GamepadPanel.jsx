@@ -87,12 +87,13 @@ export function GamepadPanel(props) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow>
+        {/* this exists for mock testing */}
+        {/*<TableRow>
           <TableCell className="font-medium">1</TableCell>
           <TableCell>IDK</TableCell>
           <TableCell>Xbox 360</TableCell>
           <TableCell className="text-right">TODO</TableCell>
-        </TableRow>
+        </TableRow>*/}
         {
           gamepads.map((gamepad) => {
             return (

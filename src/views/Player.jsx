@@ -5,6 +5,7 @@ import { Term } from "../components/Term";
 import { Wrapper } from "../components/Wrapper";
 import { fetchApi, getApiUrl } from "../utils/api";
 import { adjustedBackground } from "../utils/classes";
+import { unfuck } from "../@/lib/utils";
 
 // ui comps
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../@/components/ui/tabs";
@@ -22,6 +23,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "../@/components/ui/resizable";
+import { useDrag, useGesture } from "@use-gesture/react";
 
 function useQuery() {
   const search = useLocation().search;
@@ -59,6 +61,7 @@ const Player = () => {
   let [session, setSession] = React.useState(null);
   let [sid, setSid] = React.useState(query.get("sid"));
   let [test, setTest] = React.useState(query.get("test"));
+  let [debugText, setDebugText] = React.useState("Debug text not set yet.");
   let [reportText, setReportText] = React.useState("Connection Status Report will appear here.");
 
   function onStatusReport(report){
@@ -157,6 +160,17 @@ const Player = () => {
 
   if (session) {
     let backgroundUrl = new URL(session.appSpecs.background, getApiUrl()).href;
+
+    const bind = unfuck(useDrag(({movement, velocity, active, cancel}) => {
+      setDebugText(JSON.stringify(movement) + " " + JSON.stringify(velocity));
+      if(active && movement[0] < window.innerWidth / 2){
+        document.title = JSON.stringify(movement) + " " + JSON.stringify(velocity);
+        console.log("dragging canceled");
+        cancel();
+      }
+      console.log(movement);
+    }));
+
     return (
       <React.Fragment>
         <Wrapper
@@ -202,7 +216,7 @@ const Player = () => {
               ),
               session.ready && (
                 <>
-                  <div className="h-full w-full m-0" key = "player">
+                  <div className="h-full w-full m-0 touch-none" key = "player" {...bind()}>
                     <ResizablePanelGroup direction="horizontal" className="">
                       <ResizablePanel defaultSize={80} minSize={10}>
                         <InputFrame sid={session.sid} mouse mousebutton>
@@ -210,7 +224,7 @@ const Player = () => {
                         </InputFrame>
                       </ResizablePanel>
                       <ResizableHandle withHandle={true} className="" />
-                      <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={10} minSize={0}>
+                      <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={10} minSize={0} className="touch-pan-y">
                         <Tabs defaultValue="session" className="w-full p-4">
                           <TabsList className = "w-full">
                             <TabsTrigger value="session">Session</TabsTrigger>
@@ -222,7 +236,7 @@ const Player = () => {
                             <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
                             <GamepadPanel sid={session.sid} />
                             <pre className="max-h-64 overflow-y-scroll">
-                              {reportText}
+                              {debugText}
                             </pre>
                           </TabsContent>
                           <TabsContent value="social"  className="p-4">
