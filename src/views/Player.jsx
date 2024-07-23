@@ -224,7 +224,7 @@ const Player = () => {
                         </InputFrame>
                       </ResizablePanel>
                       <ResizableHandle withHandle={true} className="" />
-                      <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={10} minSize={0} className="touch-pan-y">
+                      <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={0} minSize={10} className="touch-pan-y">
                         <Tabs defaultValue="session" className="w-full p-4">
                           <TabsList className = "w-full">
                             <TabsTrigger value="session">Session</TabsTrigger>
@@ -236,7 +236,7 @@ const Player = () => {
                             <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
                             <GamepadPanel sid={session.sid} />
                             <pre className="max-h-64 overflow-y-scroll">
-                              {debugText}
+                              {reportText}
                             </pre>
                           </TabsContent>
                           <TabsContent value="social"  className="p-4">
