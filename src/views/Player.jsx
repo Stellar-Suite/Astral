@@ -204,13 +204,13 @@ const Player = () => {
                 <>
                   <div className="h-full w-full m-0" key = "player">
                     <ResizablePanelGroup direction="horizontal" className="">
-                      <ResizablePanel defaultSize={80}>
+                      <ResizablePanel defaultSize={80} minSize={10}>
                         <InputFrame sid={session.sid} mouse mousebutton>
                           <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
                         </InputFrame>
                       </ResizablePanel>
                       <ResizableHandle withHandle={true} className="" />
-                      <ResizablePanel defaultSize={20} collapsible={true}>
+                      <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={10} minSize={0}>
                         <Tabs defaultValue="session" className="w-full p-4">
                           <TabsList className = "w-full">
                             <TabsTrigger value="session">Session</TabsTrigger>
