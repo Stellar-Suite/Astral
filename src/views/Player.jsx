@@ -64,6 +64,8 @@ const Player = () => {
   let [debugText, setDebugText] = React.useState("Debug text not set yet.");
   let [reportText, setReportText] = React.useState("Connection Status Report will appear here.");
 
+  let sidePanelRef = React.useRef(null); // ImperativePanelRef
+
   function onStatusReport(report){
     setReportText(report);
   }
@@ -161,12 +163,21 @@ const Player = () => {
   if (session) {
     let backgroundUrl = new URL(session.appSpecs.background, getApiUrl()).href;
 
-    const bind = unfuck(useDrag(({movement, velocity, active, cancel, down}) => {
-      setDebugText(JSON.stringify(movement) + " " + JSON.stringify(velocity) + " " + down);
+    const bind = unfuck(useDrag(({movement, velocity, active, cancel, down, last}) => {
+      setDebugText(active + " " + JSON.stringify(movement) + " " + JSON.stringify(velocity) + " " + down + " " + Date.now() + " ");
       if(active && movement[0] < window.innerWidth / 2){
-        document.title = JSON.stringify(movement) + " " + JSON.stringify(velocity);
-        console.log("dragging canceled");
-        cancel();
+        // document.title = JSON.stringify(movement) + " " + JSON.stringify(velocity);
+        // console.log("dragging canceled");
+        // cancel();
+      }
+      if(movement[0] < -window.innerWidth / 2 && last){
+        if(sidePanelRef.current){
+          sidePanelRef.current.expand();
+        }
+      }else if(movement[0] > window.innerWidth / 2 && last){
+        if(sidePanelRef.current){
+          sidePanelRef.current.collapse();
+        }
       }
       console.log(movement);
     }));
@@ -180,7 +191,7 @@ const Player = () => {
             </InputFrame>
           </ResizablePanel>
           <ResizableHandle withHandle={true} className="" />
-          <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={0} minSize={10} className="touch-pan-y">
+          <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={0} minSize={10} className="touch-pan-y" ref={sidePanelRef}>
             <Tabs defaultValue="session" className="w-full p-4">
               <TabsList className = "w-full">
                 <TabsTrigger value="session">Session</TabsTrigger>
