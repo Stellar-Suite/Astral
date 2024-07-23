@@ -172,9 +172,12 @@ const Player = () => {
         // console.log("dragging canceled");
         // cancel();
       }
-      if(movement[0] < -window.innerWidth / 2 && last){
+      if(movement[0] < -window.innerWidth / 3 && last){
         if(sidePanelRef.current){
           sidePanelRef.current.expand();
+          if(movement[0] < -(2 * window.innerWidth) / 3){
+            sidePanelRef.current.resize(100);
+          }
         }
       }else if(movement[0] > window.innerWidth / 2 && last){
         if(sidePanelRef.current){
@@ -195,7 +198,7 @@ const Player = () => {
     const innerComponent = (session && session.ready) ? <>
       <div className="h-full w-full m-0 touch-none" key = "player">
         <ResizablePanelGroup direction="horizontal" className="">
-          <ResizablePanel defaultSize={80} minSize={10}>
+          <ResizablePanel defaultSize={80}>
             <InputFrame sid={session.sid} mouse mousebutton>
               <RemoteMedia sid = {session.sid} onStatusUpdate={onStatusReport} />
             </InputFrame>
