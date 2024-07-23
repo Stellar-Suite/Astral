@@ -24,6 +24,7 @@ import {
   ResizablePanelGroup,
 } from "../@/components/ui/resizable";
 import { useDrag, useGesture } from "@use-gesture/react";
+import { SettingsDrawerControlled } from "../components/SettingsDrawerControlled";
 
 function useQuery() {
   const search = useLocation().search;
@@ -63,6 +64,7 @@ const Player = () => {
   let [test, setTest] = React.useState(query.get("test"));
   let [debugText, setDebugText] = React.useState("Debug text not set yet.");
   let [reportText, setReportText] = React.useState("Connection Status Report will appear here.");
+  let [globalSettingsDrawerOpen, setGlobalSettingsDrawerOpen] = React.useState(false);
 
   let sidePanelRef = React.useRef(null); // ImperativePanelRef
 
@@ -178,6 +180,14 @@ const Player = () => {
         if(sidePanelRef.current){
           sidePanelRef.current.collapse();
         }
+      }else if(movement[1] < -window.innerHeight / 2 && last){
+        if(!globalSettingsDrawerOpen){
+          setGlobalSettingsDrawerOpen(true);
+        }
+      }else if(movement[1] > window.innerHeight / 2 && last){
+        if(globalSettingsDrawerOpen){
+          setGlobalSettingsDrawerOpen(false);
+        }
       }
       console.log(movement);
     }));
@@ -213,6 +223,7 @@ const Player = () => {
             </Tabs>
           </ResizablePanel>
         </ResizablePanelGroup>
+        <SettingsDrawerControlled open={globalSettingsDrawerOpen} setOpen={setGlobalSettingsDrawerOpen} />
       </div>
     </>:<>
       <div className="loading h-full w-full px-12 pt-12 pb-9 lg:px-24 lg:pt-24 lg:pb-18" key="loading">
