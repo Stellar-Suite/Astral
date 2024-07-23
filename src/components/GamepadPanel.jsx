@@ -54,11 +54,11 @@ export function GamepadPanel(props) {
     try{
       const attachPromise = client.gamepads.attachToRemote(gamepadDescriptor);
       onGamepadMutation(); // block the button now
-      toast(`Attaching gamepad {gamepadDescriptor.index}...`);
+      toast(`Attaching gamepad ${gamepadDescriptor.index}...`);
       await attachPromise;
-      toast(`Gamepad {gamepadDescriptor.index} attached.`);
+      toast(`Gamepad ${gamepadDescriptor.index} attached.`);
     }catch(ex){
-      toast(`Failed to attach gamepad {gamepadDescriptor.index}: ${ex}`);
+      toast(`Failed to attach gamepad ${gamepadDescriptor.index}: ${ex}`);
     }
     onGamepadMutation();
   }
@@ -67,14 +67,13 @@ export function GamepadPanel(props) {
     // toast("not implemented");
     try{
       let detachPromise = client.gamepads.detachFromRemote(gamepadDescriptor);
-      toast(`Detaching gamepad {gamepadDescriptor.index}...`);
+      toast(`Detaching gamepad ${gamepadDescriptor.index}...`);
       await detachPromise;
-      toast(`Gamepad {gamepadDescriptor.index} detached.`);
+      toast(`Gamepad ${gamepadDescriptor.index} detached.`);
     }catch(ex){
       toast(`Failed to detach gamepad {gamepadDescriptor.index}: ${ex}`);
     }
   }
-
   
   return (
     <Table>
