@@ -552,11 +552,27 @@ export class GamepadHelper extends EventTarget {
         if(!this.gamepadMetadata[gamepad.index].syncing){
             return;
         }
+        const metadata = this.gamepadMetadata[gamepad.index];
         // TODO: tell remote
-        this.gamepadMetadata[gamepad.index].syncing = false;
+        this.client.sendUnreliable({
+            "remove_gamepad": {
+                remote_id: metadata.remote_id
+            }
+        });
+        return (new Promise((resolve, reject) => {
+            this.pendingGamepadPromiseResolves[metadata.remote_id] = resolve;
+            setTimeout(() => {
+                if(this.pendingGamepadPromiseResolves[metadata.remote_id]){
+                    console.log(metadata.local_id, " detach timeout reached.");
+                    delete this.pendingGamepadPromiseResolves[metadata.remote_id];
+                    reject("Host timeout reached.");
+                }
+            }, 5000);
+        }));
+        /*this.gamepadMetadata[gamepad.index].syncing = false;
         this.gamepadMetadata[gamepad.index].connecting = false;
         this.dispatchEvent(new CustomEvent("gamepadMutation"));
-        this.dispatchEvent(new CustomEvent("gamepadRemoteMutation"));
+        this.dispatchEvent(new CustomEvent("gamepadRemoteMutation"));*/
     }
 
     /**
@@ -591,6 +607,7 @@ export class GamepadHelper extends EventTarget {
         // handle externally typed enum
         const message_type = Object.keys(data)[0];
         const message_data = data[message_type];
+        // TODO: cleanup our promise stacking system
         if(channel.label == "reliable"){
             if(message_type == "add_gamepad_reply") {
                 if(message_data.success){
@@ -615,6 +632,18 @@ export class GamepadHelper extends EventTarget {
                             data: data
                         }
                     }));
+                }
+            }else if(message_type == "remove_gamepad_reply"){
+                let [index, metadata] = Object.entries(this.gamepadMetadata).find((pair) => pair[1].remote_id == message_data.remote_id);
+                if(metadata){
+                    metadata.syncing = false;
+                    metadata.connecting = false;
+                    this.dispatchEvent(new CustomEvent("gamepadMutation"));
+                    this.dispatchEvent(new CustomEvent("gamepadRemoteMutation"));
+                    this.pendingGamepadPromiseResolves[metadata.remote_id](message_data);
+                    delete this.pendingGamepadPromiseResolves[metadata.remote_id];
+                }else{
+                    // this doesn't matter for us
                 }
             }
         }else if(!channel.label){

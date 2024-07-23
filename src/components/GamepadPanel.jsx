@@ -64,13 +64,21 @@ export function GamepadPanel(props) {
   }
 
   async function onDetach(gamepadDescriptor){
-    toast("not implemented");
+    // toast("not implemented");
+    try{
+      let detachPromise = client.gamepads.detachFromRemote(gamepadDescriptor);
+      toast(`Detaching gamepad {gamepadDescriptor.index}...`);
+      await detachPromise;
+      toast(`Gamepad {gamepadDescriptor.index} detached.`);
+    }catch(ex){
+      toast(`Failed to detach gamepad {gamepadDescriptor.index}: ${ex}`);
+    }
   }
 
   
   return (
     <Table>
-      <TableCaption>Gamepad configuration.</TableCaption>
+      <TableCaption>Local gamepad configuration.</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[100px]">Gamepad</TableHead>
