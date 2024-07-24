@@ -4,6 +4,8 @@ import {bulkSocketManager} from "../utils/socket";
 import adapter from 'webrtc-adapter';
 import { streamerClientManager } from '../client/streamer_client';
 
+import playCircleImage from "../assets/play_circle.png";
+
 export function RemoteMedia(props){
     let domElementRef = React.useRef(null);
 
@@ -42,12 +44,12 @@ export function RemoteMedia(props){
         }
     }, []);
     if(type == "audio"){
-        return <div className = "w-full h-full m-0 p-0 bg-green-800" onClick = {forcePlay}>
+        return <div className = "w-full h-full m-0 p-0" onClick = {forcePlay}>
             <audio className="remote-audio w-full h-full" ref={domElementRef}></audio>
         </div>;
     }else{
-        return <div className = "w-full h-full m-0 p-0 bg-green-800" onClick = {forcePlay}>
-            <video className="remote-video w-full h-full" ref={domElementRef}></video>
+        return <div className = "w-full h-full m-0 p-0 bg-center bg-no-repeat bg-auto" onClick = {forcePlay} style = {{backgroundImage: `url(${playCircleImage})`}}>
+            <video className="remote-video w-full h-full" ref={domElementRef} playsInline></video>
         </div>;
     }
 }

@@ -162,38 +162,38 @@ const Player = () => {
 
   session = test ? mockSession : session;
 
+  const bind = unfuck(useDrag(({movement, velocity, active, cancel, down, last}) => {
+    setDebugText(active + " " + JSON.stringify(movement) + " " + JSON.stringify(velocity) + " " + down + " " + Date.now() + " ");
+    if(active && movement[0] < window.innerWidth / 2){
+      // document.title = JSON.stringify(movement) + " " + JSON.stringify(velocity);
+      // console.log("dragging canceled");
+      // cancel();
+    }
+    if(movement[0] < -window.innerWidth / 3 && last){
+      if(sidePanelRef.current){
+        sidePanelRef.current.expand();
+        if(movement[0] < -(2 * window.innerWidth) / 3){
+          sidePanelRef.current.resize(100);
+        }
+      }
+    }else if(movement[0] > window.innerWidth / 2 && last){
+      if(sidePanelRef.current){
+        sidePanelRef.current.collapse();
+      }
+    }else if(movement[1] < -window.innerHeight / 2 && last){
+      if(!globalSettingsDrawerOpen){
+        setGlobalSettingsDrawerOpen(true);
+      }
+    }else if(movement[1] > window.innerHeight / 2 && last){
+      if(globalSettingsDrawerOpen){
+        setGlobalSettingsDrawerOpen(false);
+      }
+    }
+    console.log(movement);
+  }));
+
   if (session) {
     let backgroundUrl = new URL(session.appSpecs.background, getApiUrl()).href;
-
-    const bind = unfuck(useDrag(({movement, velocity, active, cancel, down, last}) => {
-      setDebugText(active + " " + JSON.stringify(movement) + " " + JSON.stringify(velocity) + " " + down + " " + Date.now() + " ");
-      if(active && movement[0] < window.innerWidth / 2){
-        // document.title = JSON.stringify(movement) + " " + JSON.stringify(velocity);
-        // console.log("dragging canceled");
-        // cancel();
-      }
-      if(movement[0] < -window.innerWidth / 3 && last){
-        if(sidePanelRef.current){
-          sidePanelRef.current.expand();
-          if(movement[0] < -(2 * window.innerWidth) / 3){
-            sidePanelRef.current.resize(100);
-          }
-        }
-      }else if(movement[0] > window.innerWidth / 2 && last){
-        if(sidePanelRef.current){
-          sidePanelRef.current.collapse();
-        }
-      }else if(movement[1] < -window.innerHeight / 2 && last){
-        if(!globalSettingsDrawerOpen){
-          setGlobalSettingsDrawerOpen(true);
-        }
-      }else if(movement[1] > window.innerHeight / 2 && last){
-        if(globalSettingsDrawerOpen){
-          setGlobalSettingsDrawerOpen(false);
-        }
-      }
-      console.log(movement);
-    }));
 
     const innerComponent = (session && session.ready) ? <>
       <div className="h-full w-full m-0 touch-none" key = "player">
@@ -215,10 +215,7 @@ const Player = () => {
                 <Button variant = "secondary" onClick={debugSession} className="w-full mb-4">Debug Session</Button>
                 <Button variant = "destructive" onClick={endSession} className="w-full">End Session</Button>
                 <GamepadPanel sid={session.sid} />
-                <pre className="max-h-64 overflow-y-scroll">
-                {debugText}
-                {reportText}
-                </pre>
+                <pre className="max-h-64 overflow-y-scroll">{reportText}</pre>
               </TabsContent>
               <TabsContent value="social"  className="p-4">
               <Button variant = "primary" onClick={console.log} className="w-full mb-4">Share Session</Button>
