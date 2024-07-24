@@ -204,7 +204,7 @@ const Player = () => {
             </InputFrame>
           </ResizablePanel>
           <ResizableHandle withHandle={true} className="" />
-          <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={0} minSize={10} className="touch-pan-y" ref={sidePanelRef}>
+          <ResizablePanel defaultSize={20} collapsible={true} collapsedSize={0} minSize={10} className="touch-pan-y bg-background-lighter" ref={sidePanelRef}>
             <Tabs defaultValue="session" className="w-full p-4">
               <TabsList className = "w-full">
                 <TabsTrigger value="session">Session</TabsTrigger>
