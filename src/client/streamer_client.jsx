@@ -522,7 +522,7 @@ export class GamepadHelper extends EventTarget {
                 metadata.lastTick = gamepad.timestamp;
                 // send state regardless
                 if(metadata.syncing){
-                    let serialized = this.serializeGamepad(gamepad, metadata);
+                    let serialized = this.serializeGamepadForServer(gamepad, metadata);
                     // TODO: optimize perf?
                     if(_.isEqual(metadata.lastSent, serialized)) {
                         // console.log("Not different enough");
