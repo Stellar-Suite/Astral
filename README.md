@@ -1,6 +1,5 @@
-# vite-react-tailwindcss starter
-
-a simple and clean starter to start the project with Vite, Reactjs, Tailwind CSS.
+# Astral
+Based off vite-react-tailwindcss starter. Below are the steps to run the project. You may be interested in the [org readme](https://stellar-suite.github.io) which explains what this is for.
 
 ## Run it locally
 
@@ -8,7 +7,7 @@ Clone the project
 
 ```bash
 
-git clone https://github.com/moinulmoin/vite-react-tailwind-starter project-name
+git clone https://github.com/Stellar-Suite/Astral=
 
 ```
 
@@ -16,7 +15,7 @@ Go to the project directory
 
 ```bash
 
-cd project-name
+cd Astral
 
 ```
 
@@ -29,13 +28,3 @@ Install dependencies
 Start the server
 
 `npm run dev` or `yarn dev`
-
-Now customize everything as your needs.
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-## Support
-
-Leave a star ⭐ if it helped you. Thank you💖
